@@ -68,7 +68,7 @@ class PedidoQueries:
     async def pedidos(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
         pool = info.context["pool"]
         async with pool.acquire() as conn:
-            rows = await conn.fetch("SELECT * FROM pedido LIMIT $1 OFFSET $2", limite or 10, desde or 0)
+            rows = await conn.fetch("SELECT * FROM pedido ORDER BY id LIMIT $1 OFFSET $2", limite or 10, desde or 0)
             return [Pedido (**dict(r)) for r in rows]
 
 @strawberry.type
