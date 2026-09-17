@@ -6,7 +6,7 @@ import "./Main.css";
 
 const QUERY_PRODUCTOS = `
   query {
-    productos {
+    productos(limite: 100) {
       id
       nombre
       precio
