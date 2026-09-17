@@ -1,0 +1,23 @@
+.catalogo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+}
+
+.catalogo button {
+  background: #C8D6AF;
+  color: #3D2314;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.catalogo button:hover {
+  background: #333;
+}
+
+.catalogo button:active {
+  background: #555;
+}
