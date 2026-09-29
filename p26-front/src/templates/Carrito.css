@@ -1,0 +1,127 @@
+.carrito-page {
+  max-width: 980px;
+  margin: 0 auto;
+  background-color: white;
+}
+
+.carrito-heading {
+  margin: 3rem 0 2rem;
+}
+
+.carrito-heading h2 {
+  color: #1a1a2e;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1;
+}
+
+.carrito-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.carrito-item {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem;
+  border: 1px solid #eadbd0;
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.carrito-item img {
+  width: 76px;
+  height: 76px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.carrito-item-name {
+  font-weight: 800;
+}
+
+.carrito-item-price {
+  margin-top: 0.3rem;
+  color: #002169;
+  font-weight: 700;
+}
+
+.carrito-quantity {
+  width: 4.5rem;
+  border: 1px solid #d9c8ba;
+  border-radius: 6px;
+  padding: 0.65rem;
+  background: #f5f1e8;
+  font: inherit;
+}
+
+.carrito-remove {
+  border: 0;
+  background: transparent;
+  color: #002169;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.carrito-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem 0;
+  border-top: 2px solid #d9c8ba;
+}
+
+.carrito-summary div {
+  display: grid;
+  gap: 0.25rem;
+  color: #6c625b;
+}
+
+.carrito-summary strong {
+  color: #1a1a2e;
+  font-size: 1.7rem;
+}
+
+.carrito-submit {
+  border: 0;
+  border-radius: 6px;
+  padding: 0.85rem 1.2rem;
+  background: #002169;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.carrito-submit:hover {
+  background: #002169cc;
+}
+
+.carrito-empty {
+  max-width: 540px;
+  margin: 8rem auto;
+  padding: 3rem 1.5rem;
+  border: 1px solid #eadbd0;
+  border-radius: 8px;
+  background: #fffdf8;
+  text-align: center;
+}
+
+.carrito-empty-icon {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+}
+
+.carrito-empty h2 {
+  color: #1a1a2e;
+}
+
+.carrito-empty p {
+  margin-top: 0.6rem;
+  color: #756962;
+}
