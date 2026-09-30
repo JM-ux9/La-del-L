@@ -38,7 +38,7 @@ class ProductoQueries:
     async def productos(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Producto]:
         pool = info.context["pool"]
         async with pool.acquire() as conn:
-            rows = await conn.fetch("SELECT * FROM producto LIMIT $1 OFFSET $2", limite or 10, desde or 0)
+            rows = await conn.fetch("SELECT * FROM producto ORDER BY id LIMIT $1 OFFSET $2", limite or 10, desde or 0)
             return [Producto(**dict(r)) for r in rows]
 
     @strawberry.field
