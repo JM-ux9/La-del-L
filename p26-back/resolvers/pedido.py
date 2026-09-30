@@ -1,6 +1,6 @@
 import strawberry
 from typing import Annotated, List, Optional, TYPE_CHECKING
-from auth import requerir_usuario
+from auth import requerir_usuario, requerir_admin
 
 if TYPE_CHECKING:
     from resolvers.producto import Producto
@@ -66,7 +66,7 @@ class PedidoQueries:
     @strawberry.field
     async def pedidos(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
         pool = info.context["pool"]
-        requerir_usuario(info)
+        requerir_admin(info)
         async with pool.acquire() as conn:
             rows = await conn.fetch("SELECT * FROM pedido ORDER BY id LIMIT $1 OFFSET $2", limite or 10, desde or 0)
             return [Pedido (**dict(r)) for r in rows]

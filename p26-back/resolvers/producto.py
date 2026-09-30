@@ -1,6 +1,6 @@
 import strawberry
 from typing import Annotated, List, Optional, TYPE_CHECKING
-from auth import requerir_usuario
+from auth import requerir_usuario, requerir_admin
 
 if TYPE_CHECKING:
     from resolvers.categoria import Categoria
@@ -53,7 +53,7 @@ class ProductoQueries:
 class ProductoMutations:
     @strawberry.mutation
     async def crear_producto(self, info: strawberry.Info, datos: ProductoInput) -> Producto:
-        requerir_usuario(info)
+        requerir_admin(info)
         pool = info.context["pool"]
 
         async with pool.acquire() as conn:
@@ -66,7 +66,7 @@ class ProductoMutations:
 
     @strawberry.mutation
     async def actualizar_producto(self, info: strawberry.Info, id: int, datos: ProductoInput) -> Optional[Producto]:
-        requerir_usuario(info)
+        requerir_admin(info)
         pool = info.context["pool"]
         async with pool.acquire() as conn:
             row = await conn.fetchrow("UPDATE producto SET nombre = $1, precio = $2, imagen = $3, categoria_id = $4, disponible = $5 WHERE id = $6 RETURNING *", datos.nombre, datos.precio, datos.imagen, datos.categoria, datos.disponible, id)
@@ -74,7 +74,7 @@ class ProductoMutations:
 
     @strawberry.mutation
     async def eliminar_producto(self, info: strawberry.Info, id: int) -> bool:
-        requerir_usuario(info)
+        requerir_admin(info)
         pool = info.context["pool"]
         async with pool.acquire() as conn:
             result = await conn.execute("DELETE FROM producto WHERE id = $1", id)
