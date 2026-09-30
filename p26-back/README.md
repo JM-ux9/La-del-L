@@ -1,21 +1,17 @@
 # Backend P26
 
-Backend de la tienda Kegovc construido con FastAPI, Strawberry GraphQL y PostgreSQL alojado en Supabase.
-
-## Base de datos en la nube
-
-- [Abrir proyecto en Supabase](https://supabase.com/dashboard/project/uofaxfmbilrtjorblprt)
-
-La aplicación se conecta a PostgreSQL mediante la variable `DATABASE_URL`. No publiques esta URL con sus credenciales.
+Backend de la tienda Kegovc, construido con FastAPI, Strawberry GraphQL y PostgreSQL. La configuración actual usa un proyecto de Supabase.
 
 ## Requisitos
 
 - Python 3.10 o superior
-- Acceso a la base de datos de Supabase
+- Una base de datos PostgreSQL accesible por el backend
+
+El [proyecto de Supabase](https://supabase.com/dashboard/project/uofaxfmbilrtjorblprt) aloja la base de datos utilizada en desarrollo. La aplicación espera las tablas `usuario`, `categoria`, `producto`, `pedido` y `detalle_pedido`.
 
 ## Instalación
 
-Desde esta carpeta, crea y activa un entorno virtual:
+Desde esta carpeta, crea y activa un entorno virtual de PowerShell:
 
 ```powershell
 python -m venv .venv
@@ -26,18 +22,25 @@ Instala las dependencias:
 
 ```powershell
 python -m pip install --upgrade pip
-python -m pip install fastapi uvicorn strawberry-graphql asyncpg python-dotenv
+python -m pip install fastapi uvicorn strawberry-graphql asyncpg python-dotenv python-jose passlib[argon2] email-validator
 ```
 
-## Variables de entorno
+## Configuración
 
-Crea un archivo `.env` en la raíz del backend con la cadena de conexión de PostgreSQL:
+Crea un archivo `.env` en la raíz del backend. Sustituye los valores de ejemplo; no guardes contraseñas ni claves reales en el repositorio.
 
 ```env
-DATABASE_URL=postgresql://postgres.uofaxfmbilrtjorblprt:e-commerce-kegovc@aws-0-ca-central-1.pooler.supabase.com:5432/postgres
+DATABASE_URL=postgresql://USUARIO:CONTRASENA@HOST:PUERTO/BASE_DE_DATOS
+SECRET_KEY=REEMPLAZAR_POR_UN_SECRETO_ALEATORIO
 ```
 
-El archivo `.env` está excluido de Git mediante `.gitignore`. Usa la cadena de conexión proporcionada por Supabase y conserva sus credenciales únicamente en variables de entorno.
+`DATABASE_URL` es la cadena de conexión PostgreSQL proporcionada por tu proveedor. `SECRET_KEY` se usa para firmar los tokens JWT. Puedes generar un valor aleatorio con:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+El archivo `.env` está excluido de Git. Mantén ambas variables privadas y configura los mismos valores en el entorno donde despliegues el servicio.
 
 ## Ejecución
 
@@ -47,14 +50,24 @@ Inicia el servidor en modo desarrollo:
 python -m uvicorn main:app --reload
 ```
 
-La API estará disponible en:
-
-- GraphQL: http://127.0.0.1:8000/graphql
-
-Para iniciar el servidor en un puerto específico:
+El endpoint GraphQL estará disponible en `http://127.0.0.1:8000/graphql`. Para escuchar en todas las interfaces y especificar el puerto:
 
 ```powershell
 python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-El esquema GraphQL se define en `schema.py` y sus consultas y mutaciones se encuentran en la carpeta `resolvers/`.
+## API GraphQL
+
+Las consultas disponibles son `productos`, `producto`, `categorias`, `categoria` y `pedidos`. Las mutaciones son `crearUsuario`, `login`, `crearPedido`, `crearProducto`, `actualizarProducto` y `eliminarProducto`. El esquema se arma en `schema.py`; los tipos y resolvers están en `resolvers/`.
+
+El registro de usuario y las consultas del catálogo son públicos. `crearPedido` requiere una sesión; `pedidos` y las mutaciones de productos requieren un usuario con rol `ADMIN`. Para operaciones autenticadas, envía el token devuelto por `login` en el encabezado:
+
+```http
+Authorization: Bearer <token>
+```
+
+Los tokens vencen después de 24 horas. El registro valida que el correo sea entregable, por lo que necesita acceso a Internet.
+
+## CORS y despliegue
+
+El servidor actualmente permite cualquier origen, método y encabezado mediante CORS. Antes de exponerlo en producción, restringe `allow_origins` en `main.py` a los dominios del frontend y usa secretos de entorno específicos del despliegue.
