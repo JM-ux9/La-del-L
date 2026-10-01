@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PaginaCategoria from "../../components/PaginaCategoria.jsx";
+import { fetchGraphQL } from "../../services/api";
+
+export async function getStaticPaths() {
+  const data = await fetchGraphQL(`
+query {
+  categorias {
+    id
+  }
+}
+  `);
+
+  return data.categorias.map((categoria) => ({
+    params: { id: String(categoria.id) },
+    props: { categoriaId: categoria.id },
+  }));
+}
+
+const { categoriaId } = Astro.props;
+---
+
+<BaseLayout titulo="Categoria | Café del L">
+  <PaginaCategoria client:load categoriaId={categoriaId} />
+</BaseLayout>

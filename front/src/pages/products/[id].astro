@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PaginaProducto from "../../components/PaginaProducto.jsx";
+import { fetchGraphQL } from "../../services/api";
+
+export async function getStaticPaths() {
+  const data = await fetchGraphQL(`
+    query {
+      productos(limite: 100) {
+        id
+      }
+    }
+  `);
+
+  return data.productos.map((producto) => ({
+    params: { id: String(producto.id) },
+    props: { productoId: producto.id },
+  }));
+}
+
+const { productoId } = Astro.props;
+---
+
+<BaseLayout titulo="Producto | Café del L">
+  <PaginaProducto client:load productoId={productoId} />
+</BaseLayout>

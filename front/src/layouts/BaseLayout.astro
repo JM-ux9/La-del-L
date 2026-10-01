@@ -1,0 +1,21 @@
+---
+import "../styles/global.css";
+
+const { titulo = "Café del L" } = Astro.props;
+---
+
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{titulo}</title>
+    </head>
+    <body>
+        <div class="aurora-bg">
+            <div class="aurora-blob aurora-blob--1"></div>
+            <div class="aurora-blob aurora-blob--2"></div>
+        </div>
+        <slot />
+    </body>
+</html>
