@@ -14,15 +14,18 @@ async def lifespan(app: FastAPI):
 
 async def get_context(request: Request):
     usuario = None
+    token_expirado = False
 
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.removeprefix("Bearer ")
         payload = decodificar_token(token)
-        if payload:
+        if payload is None:
+            token_expirado = True
+        elif payload.get("tipo") == "access":
             usuario = payload
 
-    return {"pool": request.app.state.pool, "usuario": usuario}
+    return {"pool": request.app.state.pool, "usuario": usuario, "token_expirado": token_expirado}
 
 app = FastAPI(lifespan=lifespan)
 

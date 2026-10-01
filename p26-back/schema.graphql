@@ -1,5 +1,6 @@
 type AuthPayload {
-  token: String!
+  accessToken: String!
+  refreshToken: String!
   usuario: Usuario!
 }
 
@@ -28,6 +29,8 @@ type Mutation {
   crearPedido(datos: PedidoInput!): Pedido!
   crearUsuario(datos: UsuarioInput!): Usuario
   login(datos: LoginInput!): AuthPayload!
+  refrescarToken(refreshToken: String!): RefreshPayload!
+  logout(refreshToken: String!): Boolean!
 }
 
 type Pedido {
@@ -66,6 +69,11 @@ type Query {
   categorias: [Categoria!]!
   categoria(id: Int!): Categoria
   pedidos(limite: Int = null, desde: Int = null): [Pedido!]!
+}
+
+type RefreshPayload {
+  accessToken: String!
+  refreshToken: String!
 }
 
 input RenglonInput {
