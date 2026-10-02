@@ -22,6 +22,18 @@ input {
   gap: 1rem;
 }
 
+.topbar-busqueda {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.topbar-logout {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+}
+
 button {
   transition: transform 0.02s cubic-bezier(1.00, 0.04, 0.00, 1.01);
   border: 0;
