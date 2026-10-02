@@ -18,6 +18,15 @@
   margin-bottom: 0.5rem;
 }
 
+.product-card h3 {
+  margin: 0.5rem 0 0.25rem;
+}
+
+.product-card p {
+  margin: 0.25rem 0 0;
+  font-weight: 700;
+}
+
 .product-card:hover {
   transform: scale(1.1);
 }

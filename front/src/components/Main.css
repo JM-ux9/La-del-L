@@ -2,7 +2,7 @@
   --card-height: 15rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-auto-rows: var(--card-height);
+  grid-auto-rows: minmax(var(--card-height), auto);
   gap: 1rem;
   padding: 1.5rem 2rem;
   max-height: calc(2 * var(--card-height) + 1rem);

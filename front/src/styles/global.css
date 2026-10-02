@@ -25,6 +25,17 @@ body {
   overflow-x: clip;
 }
 
+.skeleton {
+  background: #eadbd0;
+  border-radius: 6px;
+  animation: skeleton-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes skeleton-pulse {
+  from { opacity: 1; }
+  to { opacity: 0.45; }
+}
+
 .aurora-text {   
   background: linear-gradient(120deg, #2A3828 10%, #5d7a3a ,#3D2314 80%);
   -webkit-background-clip: text;
@@ -41,16 +52,9 @@ body {
   color: transparent; 
 }
 
+/* El primer bloque .aurora-text3 quedaba muerto (lo tapaba el siguiente) */
 .aurora-text3{
-  background: linear-gradient(120deg, #fffeee 100%, #edeab2 50%, #FDFBD4 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent; 
-}
-
-.aurora-text3{
-  background: linear-gradient(120deg, #8a875b 100%, #b7b47d 50%, #8a875b 100%);
+  background: linear-gradient(120deg, #5c5b2b 100%, #7a793f 50%, #5c5b2b 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

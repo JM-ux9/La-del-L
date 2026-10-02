@@ -72,7 +72,7 @@ function DetalleProducto({ productoId, onAgregado, onVolver }) {
           <img src={producto.imagen} alt={producto.nombre} />
         </div>
         <div className="producto-info">
-          <h2><span className="aurora-text4">{producto.nombre}</span></h2>
+          <h2><span className="aurora-text">{producto.nombre}</span></h2>
           <p className="producto-category">Categoría: {producto.categoria.nombre}</p>
           <p className="producto-price">${Number(producto.precio).toFixed(2)}</p>
 
