@@ -1,4 +1,4 @@
-import { useCarrito } from "../context/CarritoContext";
+import { useCarrito } from "../store/carrito";
 import "./Carrito.css";
 
 function Carrito({ onFinalizarCompra, onVolver }) {

@@ -1,0 +1,25 @@
+---
+import ProductCard from "./ProductCard.astro";
+import "./Main.css";
+
+const { productos } = Astro.props;
+---
+
+<main class="catalogo">
+  {productos.map((producto) => <ProductCard producto={producto} />)}
+</main>
+
+<script>
+  const busqueda = document.getElementById("busqueda");
+  const catalogo = document.querySelector(".catalogo");
+
+  if (busqueda && catalogo) {
+    busqueda.addEventListener("input", (e) => {
+      const texto = (e.target as HTMLInputElement).value.toLowerCase();
+      catalogo.querySelectorAll<HTMLElement>(".product-card").forEach((card) => {
+        const nombre = card.textContent.toLowerCase();
+        card.style.display = nombre.includes(texto) ? "" : "none";
+      });
+    });
+  }
+</script>

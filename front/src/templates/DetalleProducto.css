@@ -82,6 +82,54 @@
   cursor: not-allowed;
 }
 
+.detalle-producto {
+  min-height: 100vh;
+  padding: 2rem clamp(1rem, 5vw, 5rem);
+  background: rgba(211, 255, 170, 0.571);
+  color: #29231f;
+}
+
+.detalle-producto > a {
+  display: inline-block;
+  color: #5c5b2b;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.detalle-producto img {
+  width: min(500px, 100%);
+  margin-top: 1.25rem;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.detalle-producto h2 {
+  margin: 1.25rem 0 0.5rem;
+  color: #1a1a2e;
+}
+
+.detalle-producto p {
+  margin: 0.35rem 0;
+  color: #6c625b;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.acciones input {
+  width: 4.5rem;
+  border: 1px solid #d9c8ba;
+  border-radius: 6px;
+  padding: 0.65rem;
+  background: #f5f1e8;
+  color: #29231f;
+  font: inherit;
+}
+
 .producto-skeleton {
   max-width: 900px;
   margin: 4rem auto 0;

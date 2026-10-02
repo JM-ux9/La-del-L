@@ -85,3 +85,9 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 
 code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.inicio-contenido {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1rem;
+}

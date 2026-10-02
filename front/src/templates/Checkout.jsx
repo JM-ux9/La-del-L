@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { fetchGraphQL } from "../services/api";
-import { useCarrito } from "../context/CarritoContext";
+import { useCarrito } from "../store/carrito";
 import "./Checkout.css";
 
 const MUTATION_CREAR_PEDIDO = `
@@ -14,7 +14,11 @@ const MUTATION_CREAR_PEDIDO = `
 `;
 
 function Checkout({ onPedidoCreado, onVolver }) {
-  const { items, total, vaciarCarrito } = useCarrito();
+  const { items, vaciarCarrito } = useCarrito();
+  const total = items.reduce(
+    (acc, item) => acc + item.producto.precio * item.cantidad,
+    0
+  );
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -57,7 +61,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
 
         <div className="checkout-total">
           <span>Total</span>
-          <strong>${Number(total).toFixed(2)}</strong>
+          <span>{total}</span>
         </div>
 
         {error && <p className="checkout-error">Error al crear el pedido: {error}</p>}
