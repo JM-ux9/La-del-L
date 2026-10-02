@@ -77,3 +77,25 @@
   background: #b5a49a;
   cursor: wait;
 }
+
+.login-alternar {
+  margin: 1.5rem 0 0;
+  color: #6c625b;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-link {
+  padding: 0;
+  border-bottom: 1px solid currentColor;
+  background: none;
+  color: #002169;
+  font-size: 0.9rem;
+  transform: none;
+}
+
+.login-link:hover {
+  background: none;
+  color: #002169cc;
+  transform: none;
+}

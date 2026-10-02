@@ -1,9 +1,16 @@
+import { obtenerToken } from "./auth";
+
 const GRAPHQL_ENDPOINT = "http://localhost:8000/graphql";
 
 export async function fetchGraphQL(query, variables = {}) {
+  const token = typeof localStorage === "undefined" ? null : obtenerToken();
+
   const response = await fetch(GRAPHQL_ENDPOINT, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
     body: JSON.stringify({ query, variables }),
   });
 

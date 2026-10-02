@@ -78,12 +78,29 @@ class PedidoMutations:
         pool = info.context["pool"]
         usuario = requerir_usuario(info)
 
+        if not datos.renglones:
+            raise Exception("El pedido debe tener al menos un producto")
+
+        for renglon in datos.renglones:
+            if renglon.cantidad <= 0:
+                raise Exception("Las cantidades deben ser mayores que cero")
+
         async with pool.acquire() as conn:
             async with conn.transaction():
-                producto_ids = [r.producto_id for r in datos.renglones]
+                producto_ids = list({r.producto_id for r in datos.renglones})
                 productos_rows = await conn.fetch(
-                    "SELECT id, precio FROM producto WHERE id = ANY($1::int[])", producto_ids
+                    "SELECT id, precio, disponible FROM producto WHERE id = ANY($1::int[])", producto_ids
                 )
+                productos = {row["id"]: row for row in productos_rows}
+
+                faltantes = [pid for pid in producto_ids if pid not in productos]
+                if faltantes:
+                    raise Exception(f"Producto inexistente: {', '.join(str(p) for p in faltantes)}")
+
+                agotados = [p["nombre"] for p in productos.values() if not p["disponible"]]
+                if agotados:
+                    raise Exception(f"Producto agotado: {', '.join(agotados)}")
+
                 precios = {row["id"]: row["precio"] for row in productos_rows}
 
                 total = sum(precios[r.producto_id] * r.cantidad for r in datos.renglones)
