@@ -1,26 +1,56 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PaginaCategoria from "../../components/PaginaCategoria.jsx";
+import SideBar from "../../components/SideBar.astro";
+import Main from "../../components/Main.astro";
 import { fetchGraphQL } from "../../services/api";
 
 export async function getStaticPaths() {
   const data = await fetchGraphQL(`
-query {
-  categorias {
-    id
-  }
-}
+    query {
+      categorias {
+        id
+        nombre
+      }
+    }
   `);
 
   return data.categorias.map((categoria) => ({
     params: { id: String(categoria.id) },
-    props: { categoriaId: categoria.id },
+    props: { categoria },
   }));
 }
 
-const { categoriaId } = Astro.props;
+const { categoria } = Astro.props as {
+  categoria: { id: string | number; nombre: string };
+};
+
+const data = await fetchGraphQL(`
+  query {
+    productos(limite: 100) {
+      id
+      nombre
+      precio
+      categoria {
+        id
+      }
+      imagen
+      disponible
+    }
+  }
+`);
+
+const productos = data.productos.filter(
+  (producto) => producto.categoria?.id === categoria.id
+);
 ---
 
-<BaseLayout titulo="Categoria | Café del L">
-  <PaginaCategoria client:load categoriaId={categoriaId} />
+<BaseLayout titulo={`${categoria.nombre} | Café del L`}>
+  <div class="inicio-contenido">
+    <SideBar />
+    <div>
+      <a href="/">← Volver</a>
+      <h2>{categoria.nombre}</h2>
+      <Main productos={productos} />
+    </div>
+  </div>
 </BaseLayout>

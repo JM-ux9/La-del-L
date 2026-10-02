@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PaginaProducto from "../../components/PaginaProducto.jsx";
+import AgregarDetalle from "../../components/AgregarDetalle.jsx";
 import { fetchGraphQL } from "../../services/api";
 
 export async function getStaticPaths() {
@@ -8,19 +8,50 @@ export async function getStaticPaths() {
     query {
       productos(limite: 100) {
         id
+        nombre
+        precio
+        imagen
+        disponible
+        categoria {
+          id
+          nombre
+        }
       }
     }
   `);
 
   return data.productos.map((producto) => ({
     params: { id: String(producto.id) },
-    props: { productoId: producto.id },
+    props: { producto },
   }));
 }
 
-const { productoId } = Astro.props;
+interface Producto {
+  id: number | string;
+  nombre: string;
+  precio: number | string;
+  imagen: string;
+  disponible: boolean;
+  categoria: {
+    id: number | string;
+    nombre: string;
+  };
+}
+
+const { producto } = Astro.props as { producto: Producto };
+const precio = Number(producto.precio);
 ---
 
-<BaseLayout titulo="Producto | Café del L">
-  <PaginaProducto client:load productoId={productoId} />
+<BaseLayout titulo={`${producto.nombre} | Café del L`}>
+  <section class="detalle-producto">
+    <a href={`/categorias/${producto.categoria.id}`}>← {producto.categoria.nombre}</a>
+    <img src={producto.imagen} alt={producto.nombre} />
+    <h2>{producto.nombre}</h2>
+    <p>{Number.isFinite(precio) ? `$${precio.toFixed(2)}` : "Precio no disponible"}</p>
+    {producto.disponible ? (
+      <AgregarDetalle client:load producto={producto} />
+    ) : (
+      <p>Agotado por ahora</p>
+    )}
+  </section>
 </BaseLayout>

@@ -1,0 +1,10 @@
+---
+import ProductCard from "./ProductCard.astro";
+import "./Main.css";
+
+const { productos } = Astro.props;
+---
+
+<main class="catalogo">
+  {productos.map((producto) => <ProductCard producto={producto} />)}
+</main>

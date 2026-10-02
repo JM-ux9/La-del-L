@@ -1,0 +1,20 @@
+---
+import ContadorCarrito from "./ContadorCarrito.jsx";
+import "./TopBar.css";
+---
+
+<header class="topbar">
+  <div class="topbar-left">
+    <h1>Café del <span class="aurora-text2">L</span></h1>
+    <ContadorCarrito client:load />
+  </div>
+  <div class="topbar-right">
+    <img
+      src="https://cdn-icons-png.flaticon.com/512/8230/8230211.png"
+      width="40"
+      height="40"
+      alt="Logo"
+      class="topbar-logo"
+    />
+  </div>
+</header>

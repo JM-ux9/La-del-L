@@ -1,7 +1,14 @@
-import { CarritoProvider } from "../context/CarritoContext";
+import { useEffect } from "react";
+import { useCarrito } from "../store/carrito";
 import Carrito from "../templates/Carrito";
 
 function PaginaCarrito() {
+  const cargarCarrito = useCarrito((estado) => estado.cargarCarrito);
+
+  useEffect(() => {
+    cargarCarrito();
+  }, []);
+
   function finalizarCompra() {
     window.location.href = "/checkout";
   }
@@ -11,12 +18,10 @@ function PaginaCarrito() {
   }
 
   return (
-    <CarritoProvider>
-      <Carrito
-        onFinalizarCompra={finalizarCompra}
-        onVolver={volver}
-      />
-    </CarritoProvider>
+    <Carrito
+      onFinalizarCompra={finalizarCompra}
+      onVolver={volver}
+    />
   );
 }
 

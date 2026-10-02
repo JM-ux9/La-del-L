@@ -20,3 +20,8 @@
 .product-card:hover {
   transform: scale(1.1);
 }
+
+.product-card a {
+  color: inherit;
+  text-decoration: none;
+}
