@@ -2,7 +2,18 @@
 import ProductCard from "./ProductCard.astro";
 import "./Main.css";
 
-const { productos } = Astro.props;
+interface Producto {
+  id: number | string;
+  nombre: string;
+  precio: number | string;
+  imagen: string;
+  disponible: boolean;
+  categoria: {
+    id: number | string;
+  };
+}
+
+const { productos } = Astro.props as { productos: Producto[] };
 ---
 
 <main class="catalogo">

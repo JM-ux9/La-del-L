@@ -5,14 +5,14 @@ import Main from "../../components/Main.astro";
 import { fetchGraphQL } from "../../services/api";
 
 export async function getStaticPaths() {
-  const data = await fetchGraphQL(`
+  const data = (await fetchGraphQL(`
     query {
       categorias {
         id
         nombre
       }
     }
-  `);
+  `)) as { categorias: { id: string | number; nombre: string }[] };
 
   return data.categorias.map((categoria) => ({
     params: { id: String(categoria.id) },
@@ -24,7 +24,7 @@ const { categoria } = Astro.props as {
   categoria: { id: string | number; nombre: string };
 };
 
-const data = await fetchGraphQL(`
+const data = (await fetchGraphQL(`
   query {
     productos(limite: 100) {
       id
@@ -37,7 +37,16 @@ const data = await fetchGraphQL(`
       disponible
     }
   }
-`);
+`)) as {
+  productos: {
+    id: string | number;
+    nombre: string;
+    precio: string | number;
+    imagen: string;
+    disponible: boolean;
+    categoria: { id: string | number };
+  }[];
+};
 
 const productos = data.productos.filter(
   (producto) => producto.categoria?.id === categoria.id

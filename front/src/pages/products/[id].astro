@@ -4,8 +4,20 @@ import AgregarDetalle from "../../components/AgregarDetalle.jsx";
 import { fetchGraphQL } from "../../services/api";
 import "../../templates/DetalleProducto.css";
 
+interface Producto {
+  id: number | string;
+  nombre: string;
+  precio: number | string;
+  imagen: string;
+  disponible: boolean;
+  categoria: {
+    id: number | string;
+    nombre: string;
+  };
+}
+
 export async function getStaticPaths() {
-  const data = await fetchGraphQL(`
+  const data = (await fetchGraphQL(`
     query {
       productos(limite: 100) {
         id
@@ -19,24 +31,12 @@ export async function getStaticPaths() {
         }
       }
     }
-  `);
+  `)) as { productos: Producto[] };
 
   return data.productos.map((producto) => ({
     params: { id: String(producto.id) },
     props: { producto },
   }));
-}
-
-interface Producto {
-  id: number | string;
-  nombre: string;
-  precio: number | string;
-  imagen: string;
-  disponible: boolean;
-  categoria: {
-    id: number | string;
-    nombre: string;
-  };
 }
 
 const { producto } = Astro.props as { producto: Producto };

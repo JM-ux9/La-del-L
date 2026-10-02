@@ -2,14 +2,14 @@
 import { fetchGraphQL } from "../services/api";
 import "./SideBar.css";
 
-const data = await fetchGraphQL(`
+const data = (await fetchGraphQL(`
   query {
     categorias {
       id
       nombre
     }
   }
-`);
+`)) as { categorias: { id: string | number; nombre: string }[] };
 ---
 
 <aside class="sidebar">
