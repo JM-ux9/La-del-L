@@ -1,0 +1,16 @@
+# Web / GraphQL
+fastapi
+uvicorn
+strawberry-graphql
+
+# Base de datos
+asyncpg
+
+# Autenticación (JWT + hashing de contraseñas)
+python-jose
+passlib
+argon2-cffi
+email-validator
+
+# Variables de entorno
+python-dotenv

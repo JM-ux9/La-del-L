@@ -26,7 +26,7 @@ Instala las dependencias:
 
 ```powershell
 python -m pip install --upgrade pip
-python -m pip install fastapi uvicorn strawberry-graphql asyncpg python-dotenv
+python -m pip install -r requirements.txt
 ```
 
 ## Variables de entorno
