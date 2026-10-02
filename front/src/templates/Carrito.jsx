@@ -53,7 +53,7 @@ function Carrito({ onFinalizarCompra, onVolver }) {
       <section className="carrito-summary">
         <div>
           <span>Total</span>
-          <strong>${Number(total).toFixed(2)}</strong>
+          <strong>${Number.isFinite(total) ? total.toFixed(2) : "0.00"}</strong>
         </div>
 
         <button className="carrito-submit" onClick={onFinalizarCompra}>Finalizar compra</button>

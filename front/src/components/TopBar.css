@@ -1,19 +1,23 @@
 .topbar {
   display: flex;
   justify-content: space-between;
-  background: #3D2314;
-  color: #FFF8E7;
+  align-items: center;
+  gap: 1rem;
+  background: var(--color-primario);
+  color: var(--color-fondo);
   padding: 1rem 2rem;
 }
 
-input {
-  border: 1px solid #d9c8ba;
-  border-radius: 6px;
-  max-height: fit-content;
-  padding: 0.7rem;
-  background: #f5f1e8;
-  color: #29231f;
-  font: inherit;
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbar h1 {
+  margin: 0;
+  color: var(--color-fondo);
+  font-size: 1.5rem;
 }
 
 .topbar-right {
@@ -34,18 +38,49 @@ input {
   font-size: 0.85rem;
 }
 
-button {
-  transition: transform 0.02s cubic-bezier(1.00, 0.04, 0.00, 1.01);
-  border: 0;
-  border-radius: 6px;
-  padding: 5px;
-  background: #C8D6AF;
-  color: #3D2314;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
+.topbar input {
+  border: 1px solid rgba(247, 245, 240, 0.3);
+  background: rgba(247, 245, 240, 0.95);
+  color: var(--color-texto);
 }
 
-button:hover{
-  transform: scale(1.1);
+.topbar input:focus {
+  border-color: var(--color-fondo);
+  box-shadow: 0 0 0 3px rgba(247, 245, 240, 0.25);
+}
+
+.topbar input::placeholder {
+  color: var(--color-texto-suave);
+}
+
+.topbar button {
+  background: transparent;
+  color: var(--color-fondo);
+  border: 1px solid rgba(247, 245, 240, 0.35);
+}
+
+.topbar button:hover {
+  background: rgba(247, 245, 240, 0.14);
+  border-color: rgba(247, 245, 240, 0.6);
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem 1.25rem;
+  }
+
+  .topbar-right {
+    flex-wrap: wrap;
+  }
+
+  .topbar-busqueda {
+    flex: 1;
+    align-items: stretch;
+  }
+
+  .topbar input {
+    width: 100%;
+  }
 }

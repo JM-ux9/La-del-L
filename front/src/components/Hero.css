@@ -3,7 +3,7 @@
 }
 
 .hero h2 {
-  color: #1a1a2e;
+  color: var(--color-texto);
 }
 
 .hero img {

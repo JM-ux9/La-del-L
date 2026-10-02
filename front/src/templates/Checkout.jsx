@@ -14,11 +14,7 @@ const MUTATION_CREAR_PEDIDO = `
 `;
 
 function Checkout({ onPedidoCreado, onVolver }) {
-  const { items, vaciarCarrito } = useCarrito();
-  const total = items.reduce(
-    (acc, item) => acc + item.producto.precio * item.cantidad,
-    0
-  );
+  const { items, vaciarCarrito, total } = useCarrito();
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -61,7 +57,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
 
         <div className="checkout-total">
           <span>Total</span>
-          <span>{total}</span>
+          <span>${Number.isFinite(total) ? total.toFixed(2) : "0.00"}</span>
         </div>
 
         {error && <p className="checkout-error">Error al crear el pedido: {error}</p>}

@@ -3,25 +3,29 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   grid-auto-rows: minmax(var(--card-height), auto);
+  align-items: stretch;
   gap: 1rem;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem 2rem 2rem;
   max-height: calc(2 * var(--card-height) + 1rem);
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .catalogo button {
-  background: #C8D6AF;
-  color: #3D2314;
+  background: var(--color-acento);
+  color: #fff;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
+  font: inherit;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .catalogo button:hover {
-  background: #333;
+  background: var(--color-acento-oscuro);
 }
 
 .catalogo button:active {
-  background: #555;
+  background: var(--color-primario);
 }

@@ -1,20 +1,37 @@
+.detalle-producto {
+  padding: 1.5rem clamp(1rem, 4vw, 2rem) 4rem;
+}
+
+.detalle-producto-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: var(--color-primario);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.detalle-producto-back:hover {
+  text-decoration: underline;
+}
+
 .producto-detail {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
-  gap: clamp(2rem, 7vw, 6rem);
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.85fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
   align-items: center;
   max-width: 900px;
-  margin: 4rem auto 0;
-  padding: clamp(1rem, 4vw, 3rem);
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
+  border: 1px solid var(--color-borde);
   border-radius: 8px;
-  background: #fffdf8;
-  box-shadow: 0 12px 35px rgba(74, 43, 30, 0.1);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-media);
 }
 
 .producto-image-wrap {
   overflow: hidden;
   border-radius: 6px;
-  background: #eadccd;
+  background: var(--color-borde);
 }
 
 .producto-image-wrap img {
@@ -25,122 +42,85 @@
 }
 
 .producto-info h2 {
-  margin-bottom: 0.75rem;
-  color: #1a1a2e;
-  font-size: clamp(2rem, 5vw, 3.75rem);
-  line-height: 0.98;
+  margin: 0 0 0.75rem;
+  color: var(--color-texto);
+  font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+  line-height: 1;
 }
 
 .producto-category {
-  color: #756962;
+  margin: 0;
+  color: var(--color-texto-suave);
 }
 
 .producto-price {
-  margin: 1.5rem 0;
-  color: #002169;
+  margin: 0.75rem 0 1.5rem;
+  color: var(--color-texto);
   font-size: 1.75rem;
   font-weight: 800;
 }
 
-.producto-quantity {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  color: #6c625b;
-  font-weight: 700;
-}
-
-.producto-quantity input {
-  width: 4.5rem;
-  border: 1px solid #d9c8ba;
-  border-radius: 6px;
-  padding: 0.7rem;
-  background: #f5f1e8;
-  color: #29231f;
-  font: inherit;
-}
-
-.producto-submit {
-  width: 100%;
-  border: 0;
-  border-radius: 6px;
+.producto-agotado {
+  margin: 0;
   padding: 0.9rem 1.2rem;
-  background: #002169;
-  color: #fff;
-  font: inherit;
+  border-radius: 6px;
+  background: var(--color-secundario-tenue);
+  color: var(--color-texto);
   font-weight: 700;
-  cursor: pointer;
+  text-align: center;
 }
 
-.producto-submit:hover {
-  background: #002169cc;
-}
-
-.producto-submit:disabled {
-  background: #b5a49a;
-  cursor: not-allowed;
-}
-
-.detalle-producto {
-  min-height: 100vh;
-  padding: 2rem clamp(1rem, 5vw, 5rem);
-  background: rgba(211, 255, 170, 0.571);
-  color: #29231f;
-}
-
-.detalle-producto > a {
-  display: inline-block;
-  color: #5c5b2b;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.detalle-producto img {
-  width: min(500px, 100%);
-  margin-top: 1.25rem;
+.producto-skeleton {
+  max-width: 900px;
+  margin: 2rem auto 0;
+  padding: 2rem;
+  border: 1px solid var(--color-borde);
   border-radius: 8px;
-  object-fit: cover;
-}
-
-.detalle-producto h2 {
-  margin: 1.25rem 0 0.5rem;
-  color: #1a1a2e;
-}
-
-.detalle-producto p {
-  margin: 0.35rem 0;
-  color: #6c625b;
+  background: var(--color-superficie);
 }
 
 .acciones {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 1.25rem;
 }
 
 .acciones input {
-  width: 4.5rem;
-  border: 1px solid #d9c8ba;
+  flex: 0 0 5.5rem;
+  width: 5.5rem;
+  border: 1px solid var(--color-borde);
   border-radius: 6px;
-  padding: 0.65rem;
-  background: #f5f1e8;
-  color: #29231f;
+  padding: 0.7rem;
+  background: var(--color-fondo);
+  color: var(--color-texto);
   font: inherit;
+  text-align: center;
 }
 
-.producto-skeleton {
-  max-width: 900px;
-  margin: 4rem auto 0;
-  padding: 2rem;
-  border-radius: 8px;
-  background: #fffdf8;
+.acciones button {
+  flex: 1;
+  min-height: 2.85rem;
+  background: var(--color-acento);
+  color: #fff;
+  font-weight: 700;
+}
+
+.acciones button:hover {
+  background: var(--color-acento-oscuro);
 }
 
 @media (max-width: 700px) {
   .producto-detail {
-    grid-template-columns: 1fr;
-    margin-top: 2rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones input {
+    flex: 0 0 auto;
+    width: 100%;
   }
 }

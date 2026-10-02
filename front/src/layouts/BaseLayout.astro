@@ -3,7 +3,7 @@ import "../styles/global.css";
 import TopBar from "../components/TopBar.astro";
 import Footer from "../components/Footer.jsx";
 
-const { titulo = "Café del L" } = Astro.props;
+const { titulo = "Café del L", mostrarTopbar = true } = Astro.props;
 ---
 
 <html lang="es">
@@ -68,7 +68,7 @@ const { titulo = "Café del L" } = Astro.props;
             <div class="aurora-blob aurora-blob--1"></div>
             <div class="aurora-blob aurora-blob--2"></div>
         </div>
-        <TopBar />
+        {mostrarTopbar && <TopBar />}
         <slot />
         <Footer />
     </body>

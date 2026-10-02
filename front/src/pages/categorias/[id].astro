@@ -57,8 +57,10 @@ const productos = data.productos.filter(
   <div class="inicio-contenido">
     <SideBar />
     <div>
-      <a href="/">← Volver</a>
-      <h2>{categoria.nombre}</h2>
+      <header class="categoria-heading">
+        <a class="categoria-back" href="/">← Volver</a>
+        <h2>{categoria.nombre}</h2>
+      </header>
       <Main productos={productos} />
     </div>
   </div>

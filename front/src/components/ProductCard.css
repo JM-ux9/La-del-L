@@ -1,10 +1,14 @@
 .product-card {
-  background: white;
-  color: #29231f;
-  transition: transform .2s cubic-bezier(0.60, -0.06, 0.03, 0.92);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  transition: transform .2s cubic-bezier(0.60, -0.06, 0.03, 0.92),
+              border-color .2s ease, box-shadow .2s ease;
+  border: 1px solid var(--color-borde);
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: var(--sombra-suave);
   text-align: center;
   cursor: pointer;
   height: 100%;
@@ -20,18 +24,36 @@
 
 .product-card h3 {
   margin: 0.5rem 0 0.25rem;
+  color: var(--color-texto);
 }
 
 .product-card p {
   margin: 0.25rem 0 0;
+  color: var(--color-texto);
   font-weight: 700;
 }
 
-.product-card:hover {
-  transform: scale(1.1);
-}
-
 .product-card a {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   color: inherit;
   text-decoration: none;
+}
+
+.product-card astro-island,
+.product-card > button {
+  display: block;
+  width: 100%;
+  margin-top: auto;
+}
+
+.product-card button {
+  width: 100%;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-secundario);
+  box-shadow: var(--sombra-hover-salvia);
 }

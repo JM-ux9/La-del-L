@@ -4,8 +4,8 @@
 .checkout-page {
   min-height: 100vh;
   padding: 2rem clamp(1rem, 5vw, 5rem);
-  background: rgba(211, 255, 170, 0.571);
-  color: #29231f;
+  background: var(--color-fondo);
+  color: var(--color-texto);
 }
 
 .categoria-back,
@@ -15,7 +15,7 @@
   border: 0;
   padding: 0.65rem 0;
   background: transparent;
-  color: #5c5b2b;
+  color: var(--color-primario);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -30,7 +30,7 @@
 .carrito-kicker,
 .checkout-kicker {
   margin-bottom: 0.5rem;
-  color: #a4472e;
+  color: var(--color-acento);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -38,13 +38,14 @@
 }
 
 .categoria-heading h2 {
+  color: var(--color-texto);
   font-size: clamp(2rem, 5vw, 3.5rem);
   line-height: 1;
 }
 
 .categoria-heading p:last-child {
   margin-top: 0.75rem;
-  color: #6c625b;
+  color: var(--color-texto-suave);
 }
 
 .categoria-grid {
@@ -65,9 +66,9 @@
   max-width: 520px;
   margin: 8rem auto;
   padding: 2rem;
-  border: 1px solid #e1c8b9;
+  border: 1px solid var(--color-borde);
   border-radius: 8px;
-  background: #fffdf8;
+  background: var(--color-superficie);
   text-align: center;
 }
 
@@ -83,7 +84,7 @@
   border: 0;
   border-radius: 6px;
   padding: 0.8rem 1.2rem;
-  background: #6f3023;
+  background: var(--color-acento);
   color: #fff;
   font: inherit;
   font-weight: 700;
@@ -94,7 +95,7 @@
 .producto-error button:hover,
 .carrito-submit:hover,
 .checkout-submit:hover {
-  background: #512219;
+  background: var(--color-acento-oscuro);
 }
 
 @media (max-width: 640px) {

@@ -13,13 +13,14 @@
   width: min(520px, 100%);
   margin-top: 3rem;
   padding: clamp(1.5rem, 5vw, 3rem);
+  border: 1px solid var(--color-borde);
   border-radius: 8px;
-  background: #fffdf8;
-  box-shadow: 0 12px 35px rgba(74, 43, 30, 0.1);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-media);
 }
 
 .checkout-panel h2 {
-  color: #1a1a2e;
+  color: var(--color-texto);
   font-size: clamp(2rem, 5vw, 3rem);
   line-height: 1;
 }
@@ -29,8 +30,8 @@
   gap: 0.8rem;
   margin-top: 2rem;
   padding: 1rem 0;
-  border-top: 1px solid #eadbd0;
-  border-bottom: 1px solid #eadbd0;
+  border-top: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde);
 }
 
 .checkout-item,
@@ -41,23 +42,23 @@
 }
 
 .checkout-item {
-  color: #6c625b;
+  color: var(--color-texto-suave);
 }
 
 .checkout-total {
   align-items: baseline;
   margin: 1.5rem 0;
-  color: #002169;
+  color: var(--color-texto);
 }
 
 .checkout-total strong {
-  color: #002169;
+  color: var(--color-texto);
   font-size: 1.75rem;
 }
 
 .checkout-error {
   margin-bottom: 1rem;
-  color: #9b3d2c;
+  color: var(--color-acento);
   font-size: 0.9rem;
 }
 
@@ -66,7 +67,7 @@
   border: 0;
   border-radius: 6px;
   padding: 0.9rem 1.2rem;
-  background: #002169;
+  background: var(--color-acento);
   color: #fff;
   font: inherit;
   font-weight: 700;
@@ -74,10 +75,11 @@
 }
 
 .checkout-submit:hover {
-  background: #002169cc;
+  background: var(--color-acento-oscuro);
 }
 
 .checkout-submit:disabled {
-  background: #b5a49a;
+  background: var(--color-borde);
+  color: var(--color-texto-suave);
   cursor: wait;
 }
