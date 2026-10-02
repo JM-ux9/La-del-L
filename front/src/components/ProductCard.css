@@ -1,5 +1,6 @@
 .product-card {
   background: white;
+  color: #29231f;
   transition: transform .2s cubic-bezier(0.60, -0.06, 0.03, 0.92);
   border-radius: 8px;
   padding: 1rem;

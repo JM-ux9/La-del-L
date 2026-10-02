@@ -1,7 +1,7 @@
 
 :root {
   --aurora-bg: #FFF8E7;
-  --aurora-text: #eaf3ff;
+  --aurora-text: #29231f;
   --aurora-muted: #8792a1;
   --aurora-border: rgba(204, 225, 226, 0.811);
 }
@@ -26,7 +26,7 @@ body {
 }
 
 .aurora-text {   
-  background: linear-gradient(120deg, #2A3828 10%, #81a055 ,#3D2314 80%);
+  background: linear-gradient(120deg, #2A3828 10%, #5d7a3a ,#3D2314 80%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

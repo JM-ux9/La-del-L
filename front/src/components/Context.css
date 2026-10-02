@@ -1,3 +1,7 @@
 .context-banner {
   padding: 0.5rem 2rem;
 }
+
+.context-banner .aurora-text2 {
+  background: linear-gradient(120deg, #3D2314 0%, #8a6d12 50%, #a4472e 100%);
+}
