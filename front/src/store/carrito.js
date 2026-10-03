@@ -1,4 +1,12 @@
 import { create } from "zustand";
+import { claveCarrito } from "../services/auth";
+
+export function calcularTotal(items) {
+  return items.reduce(
+    (acc, item) => acc + Number(item.producto.precio) * item.cantidad,
+    0
+  );
+}
 
 export const useCarrito = create((set, get) => ({
   items: [],
@@ -8,12 +16,9 @@ export const useCarrito = create((set, get) => ({
     if (get().cargado) {
       return;
     }
-    const guardado = localStorage.getItem("carrito");
-    if (guardado) {
-      set({ items: JSON.parse(guardado), cargado: true });
-    } else {
-      set({ cargado: true });
-    }
+    const clave = claveCarrito();
+    const guardado = clave ? localStorage.getItem(clave) : null;
+    set({ items: guardado ? JSON.parse(guardado) : [], cargado: true });
   },
 
   agregarAlCarrito(producto, cantidad) {
@@ -49,10 +54,15 @@ export const useCarrito = create((set, get) => ({
   vaciarCarrito() {
     set({ items: [] });
   },
+
+  olvidarCarrito() {
+    set({ items: [], cargado: false });
+  },
 }));
 
 useCarrito.subscribe((estado) => {
-  if (estado.cargado) {
-    localStorage.setItem("carrito", JSON.stringify(estado.items));
+  const clave = claveCarrito();
+  if (estado.cargado && clave) {
+    localStorage.setItem(clave, JSON.stringify(estado.items));
   }
 });

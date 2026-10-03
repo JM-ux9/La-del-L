@@ -30,8 +30,18 @@ input {
 }
 
 .topbar-logout {
-  padding: 0.35rem 0.9rem;
-  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
+.topbar-logout svg {
+  width: 1.30rem;
+  height: 1.30rem;
+  display: block;
 }
 
 button {

@@ -1,4 +1,19 @@
-// Helpers de sesión: guardan y leen los tokens del login en localStorage.
+const PREFIJO_CARRITO = "carrito:";
+
+const CARRITO_GLOBAL = "carrito";
+
+function leerUsuario() {
+  try {
+    return JSON.parse(localStorage.getItem("usuario") || "null");
+  } catch (e) {
+    return null;
+  }
+}
+
+export function claveCarrito() {
+  const usuario = leerUsuario();
+  return usuario?.id ? `${PREFIJO_CARRITO}${usuario.id}` : null;
+}
 
 export function guardarSesion(login) {
   localStorage.setItem("access_token", login.accessToken);
@@ -25,6 +40,12 @@ export function sesionValida() {
 }
 
 export function cerrarSesion() {
+  const clave = claveCarrito();
+  if (clave) {
+    localStorage.removeItem(clave);
+  }
+  localStorage.removeItem(CARRITO_GLOBAL);
+
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("usuario");

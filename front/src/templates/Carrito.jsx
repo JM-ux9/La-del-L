@@ -1,8 +1,9 @@
-import { useCarrito } from "../store/carrito";
+import { useCarrito, calcularTotal } from "../store/carrito";
 import "./Carrito.css";
 
 function Carrito({ onFinalizarCompra, onVolver }) {
-  const { items, quitarDelCarrito, cambiarCantidad, total } = useCarrito();
+  const { items, quitarDelCarrito, cambiarCantidad } = useCarrito();
+  const total = calcularTotal(items);
 
   if (items.length === 0) {
     return (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { fetchGraphQL } from "../services/api";
-import { useCarrito } from "../store/carrito";
+import { useCarrito, calcularTotal } from "../store/carrito";
 import "./Checkout.css";
 
 const MUTATION_CREAR_PEDIDO = `
@@ -15,10 +15,7 @@ const MUTATION_CREAR_PEDIDO = `
 
 function Checkout({ onPedidoCreado, onVolver }) {
   const { items, vaciarCarrito } = useCarrito();
-  const total = items.reduce(
-    (acc, item) => acc + item.producto.precio * item.cantidad,
-    0
-  );
+  const total = calcularTotal(items);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
 
