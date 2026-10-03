@@ -45,14 +45,28 @@ const precio = Number(producto.precio);
 
 <BaseLayout titulo={`${producto.nombre} | Café del L`}>
   <section class="detalle-producto">
-    <a href={`/categorias/${producto.categoria.id}`}>← {producto.categoria.nombre}</a>
-    <img src={producto.imagen} alt={producto.nombre} />
-    <h2>{producto.nombre}</h2>
-    <p>{Number.isFinite(precio) ? `$${precio.toFixed(2)}` : "Precio no disponible"}</p>
-    {producto.disponible ? (
-      <AgregarDetalle client:load producto={producto} />
-    ) : (
-      <p>Agotado por ahora</p>
-    )}
+    <div class="detalle-producto-inner">
+      <a class="detalle-producto-back" href={`/categorias/${producto.categoria.id}`}>← Volver</a>
+
+      <article class="detalle-producto-card">
+        <figure class="detalle-producto-media">
+          <img src={producto.imagen} alt={producto.nombre} />
+        </figure>
+
+        <div class="detalle-producto-info">
+          <p class="detalle-producto-kicker">{producto.categoria.nombre}</p>
+          <h2>{producto.nombre}</h2>
+          <p class="detalle-producto-precio">
+            {Number.isFinite(precio) ? `$${precio.toFixed(2)}` : "Precio no disponible"}
+          </p>
+
+          {producto.disponible ? (
+            <AgregarDetalle client:load producto={producto} />
+          ) : (
+            <p class="detalle-producto-agotado">Agotado por ahora</p>
+          )}
+        </div>
+      </article>
+    </div>
   </section>
 </BaseLayout>

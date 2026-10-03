@@ -17,7 +17,9 @@ function AgregarDetalle({ producto }) {
 
   return (
     <div className="acciones">
+      <label htmlFor="cantidad">Cantidad</label>
       <input
+        id="cantidad"
         type="number"
         min="1"
         value={cantidad}
