@@ -55,7 +55,6 @@ body {
   color: transparent; 
 }
 
-/* El primer bloque .aurora-text3 quedaba muerto (lo tapaba el siguiente) */
 .aurora-text3{
   background: linear-gradient(120deg, #5c5b2b 100%, #7a793f 50%, #5c5b2b 100%);
   -webkit-background-clip: text;
