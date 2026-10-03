@@ -3,6 +3,7 @@ import "../styles/global.css";
 import TopBar from "../components/TopBar.astro";
 import Footer from "../components/Footer.jsx";
 
+const graphqlUrl = import.meta.env.PUBLIC_GRAPHQL_URL || "http://localhost:8000/graphql";
 const { titulo = "Café del L", ocultarTopBar = false } = Astro.props;
 ---
 
@@ -12,9 +13,9 @@ const { titulo = "Café del L", ocultarTopBar = false } = Astro.props;
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width" />
         <title>{titulo}</title>
-        <script is:inline>
+        <script is:inline define:vars={{ graphqlUrl }}>
             (function () {
-                var GRAPHQL = "http://localhost:8000/graphql";
+                var GRAPHQL = graphqlUrl;
                 var ruta = location.pathname;
                 var token = localStorage.getItem("access_token");
                 var refreshToken = localStorage.getItem("refresh_token");
@@ -28,7 +29,7 @@ const { titulo = "Café del L", ocultarTopBar = false } = Astro.props;
                     }
                 }
 
-                if (ruta === "/login") {
+                if (ruta === "/login" || ruta === "/login/") {
                     if (token && !expirado(token)) location.replace("/");
                     return;
                 }
