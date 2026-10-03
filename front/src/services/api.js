@@ -1,6 +1,6 @@
 import { obtenerToken } from "./auth";
 
-const GRAPHQL_ENDPOINT = "http://localhost:8000/graphql";
+const GRAPHQL_ENDPOINT = import.meta.env.PUBLIC_GRAPHQL_URL || "http://localhost:8000/graphql";
 
 export async function fetchGraphQL(query, variables = {}) {
   const token = typeof localStorage === "undefined" ? null : obtenerToken();
