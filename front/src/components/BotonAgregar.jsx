@@ -10,7 +10,7 @@ function BotonAgregar({ producto }) {
   }, []);
 
   return (
-    <button onClick={() => agregarAlCarrito(producto, 1)}>
+    <button className="agregar-carrito" onClick={() => agregarAlCarrito(producto, 1)}>
       Agregar al carrito
     </button>
   );

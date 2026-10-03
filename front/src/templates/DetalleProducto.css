@@ -97,13 +97,6 @@
   margin: 0 auto;
 }
 
-.detalle-producto-back {
-  justify-self: start;
-  color: #5c5b2b;
-  font-weight: 700;
-  text-decoration: none;
-}
-
 .detalle-producto-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 0.9fr);

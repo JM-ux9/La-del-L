@@ -1,5 +1,5 @@
 .catalogo {
-  --card-height: 18rem;
+  --card-height: 20rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   grid-auto-rows: minmax(var(--card-height), auto);
@@ -7,21 +7,4 @@
   padding: 1.5rem 2rem;
   max-height: calc(2 * var(--card-height) + 1rem);
   overflow-y: auto;
-}
-
-.catalogo button {
-  background: #C8D6AF;
-  color: #3D2314;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.catalogo button:hover {
-  background: #333;
-}
-
-.catalogo button:active {
-  background: #555;
 }
