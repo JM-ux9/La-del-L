@@ -1,0 +1,14 @@
+.hero {
+  padding: 0.5rem 2rem;
+}
+
+.hero h2 {
+  color: #1a1a2e;
+}
+
+.hero img {
+  width: 100%;
+  max-height: 175px;
+  object-fit: cover;
+  border-radius: 8px;
+}

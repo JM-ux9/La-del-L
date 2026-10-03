@@ -1,16 +1,10 @@
 import strawberry
 from typing import Annotated, List, Optional, TYPE_CHECKING
+from auth import requerir_usuario, requerir_admin
 
 if TYPE_CHECKING:
     from resolvers.producto import Producto
-
-@strawberry.type
-class Usuario:
-    id: int
-    nombre: str
-    email: str
-    password: str
-    rol: str
+    from resolvers.usuario import Usuario
 
 @strawberry.type
 class DetallePedido:
@@ -40,7 +34,11 @@ class Pedido:
     usuario_id: strawberry.Private[int]
 
     @strawberry.field
-    async def usuario(self, info: strawberry.Info) -> Usuario:
+    async def usuario(
+        self, info: strawberry.Info
+    ) -> Annotated["Usuario", strawberry.lazy("resolvers.usuario")]:
+        from resolvers.usuario import Usuario
+
         pool = info.context["pool"]
         async with pool.acquire() as conn:
             row = await conn.fetchrow("SELECT * FROM usuario WHERE id = $1", self.usuario_id)
@@ -61,12 +59,14 @@ class RenglonInput:
 @strawberry.input
 class PedidoInput:
     renglones: List[RenglonInput]
+    # usuario_id: int
 
 @strawberry.type
 class PedidoQueries:
     @strawberry.field
     async def pedidos(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
         pool = info.context["pool"]
+        requerir_admin(info)
         async with pool.acquire() as conn:
             rows = await conn.fetch("SELECT * FROM pedido ORDER BY id LIMIT $1 OFFSET $2", limite or 10, desde or 0)
             return [Pedido (**dict(r)) for r in rows]
@@ -76,21 +76,38 @@ class PedidoMutations:
     @strawberry.mutation
     async def crear_pedido(self, info: strawberry.Info, datos: PedidoInput) -> Pedido:
         pool = info.context["pool"]
-        usuario_id = 1
+        usuario = requerir_usuario(info)
+
+        if not datos.renglones:
+            raise Exception("El pedido debe tener al menos un producto")
+
+        for renglon in datos.renglones:
+            if renglon.cantidad <= 0:
+                raise Exception("Las cantidades deben ser mayores que cero")
 
         async with pool.acquire() as conn:
             async with conn.transaction():
-                producto_ids = [r.producto_id for r in datos.renglones]
+                producto_ids = list({r.producto_id for r in datos.renglones})
                 productos_rows = await conn.fetch(
-                    "SELECT id, precio FROM producto WHERE id = ANY($1::int[])", producto_ids
+                    "SELECT id, precio, disponible FROM producto WHERE id = ANY($1::int[])", producto_ids
                 )
+                productos = {row["id"]: row for row in productos_rows}
+
+                faltantes = [pid for pid in producto_ids if pid not in productos]
+                if faltantes:
+                    raise Exception(f"Producto inexistente: {', '.join(str(p) for p in faltantes)}")
+
+                agotados = [p["nombre"] for p in productos.values() if not p["disponible"]]
+                if agotados:
+                    raise Exception(f"Producto agotado: {', '.join(agotados)}")
+
                 precios = {row["id"]: row["precio"] for row in productos_rows}
 
                 total = sum(precios[r.producto_id] * r.cantidad for r in datos.renglones)
 
                 pedido_row = await conn.fetchrow(
                     "INSERT INTO pedido (fecha, total, status, usuario_id) VALUES (now(), $1, $2, $3) RETURNING *",
-                    total, "PENDIENTE", usuario_id
+                    total, "PENDIENTE", usuario["usuario_id"]
                 )
 
                 for r in datos.renglones:

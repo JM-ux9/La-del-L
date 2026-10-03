@@ -1,0 +1,75 @@
+---
+import "../styles/global.css";
+import TopBar from "../components/TopBar.astro";
+import Footer from "../components/Footer.jsx";
+
+const { titulo = "Café del L", ocultarTopBar = false } = Astro.props;
+---
+
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{titulo}</title>
+        <script is:inline>
+            (function () {
+                var GRAPHQL = "http://localhost:8000/graphql";
+                var ruta = location.pathname;
+                var token = localStorage.getItem("access_token");
+                var refreshToken = localStorage.getItem("refresh_token");
+
+                function expirado(tok) {
+                    try {
+                        var payload = JSON.parse(atob(tok.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+                        return payload.exp * 1000 < Date.now();
+                    } catch (e) {
+                        return true;
+                    }
+                }
+
+                if (ruta === "/login") {
+                    if (token && !expirado(token)) location.replace("/");
+                    return;
+                }
+
+                if (token && !expirado(token)) return;
+
+                if (!refreshToken) {
+                    location.replace("/login");
+                    return;
+                }
+
+                fetch(GRAPHQL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        query: "mutation($refreshToken: String!) { refrescarToken(refreshToken: $refreshToken) { accessToken refreshToken } }",
+                        variables: { refreshToken: refreshToken },
+                    }),
+                })
+                    .then(function (res) { return res.json(); })
+                    .then(function (res) {
+                        if (res.errors) throw new Error(res.errors[0].message);
+                        localStorage.setItem("access_token", res.data.refrescarToken.accessToken);
+                        localStorage.setItem("refresh_token", res.data.refrescarToken.refreshToken);
+                    })
+                    .catch(function () {
+                        localStorage.removeItem("access_token");
+                        localStorage.removeItem("refresh_token");
+                        localStorage.removeItem("usuario");
+                        location.replace("/login");
+                    });
+            })();
+        </script>
+    </head>
+    <body>
+        <div class="aurora-bg">
+            <div class="aurora-blob aurora-blob--1"></div>
+            <div class="aurora-blob aurora-blob--2"></div>
+        </div>
+        {!ocultarTopBar && <TopBar />}
+        <slot />
+        <Footer />
+    </body>
+</html>

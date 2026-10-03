@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.jsx";
+import Context from "../components/Context.jsx";
+import SideBar from "../components/SideBar.astro";
+import Main from "../components/Main.astro";
+import { fetchGraphQL } from "../services/api";
+
+const data = await fetchGraphQL(`
+  query {
+    productos(limite: 100) {
+      id
+      nombre
+      precio
+      categoria {
+        id
+      }
+      imagen
+      disponible
+    }
+  }
+`);
+---
+
+<BaseLayout titulo="Café del L">
+  <Hero />
+  <Context />
+  <div class="inicio-contenido">
+    <SideBar />
+    <Main productos={data.productos} />
+  </div>
+</BaseLayout>

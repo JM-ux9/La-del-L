@@ -4,6 +4,7 @@ from strawberry.fastapi import GraphQLRouter
 from db import create_pool
 from schema import schema
 from fastapi.middleware.cors import CORSMiddleware
+from jwt_service import decodificar_token
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -12,7 +13,19 @@ async def lifespan(app: FastAPI):
     await app.state.pool.close()
 
 async def get_context(request: Request):
-    return {"pool": request.app.state.pool}
+    usuario = None
+    token_expirado = False
+
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.removeprefix("Bearer ")
+        payload = decodificar_token(token)
+        if payload is None:
+            token_expirado = True
+        elif payload.get("tipo") == "access":
+            usuario = payload
+
+    return {"pool": request.app.state.pool, "usuario": usuario, "token_expirado": token_expirado}
 
 app = FastAPI(lifespan=lifespan)
 

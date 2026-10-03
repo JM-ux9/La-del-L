@@ -1,5 +1,6 @@
 import strawberry
 from typing import Annotated, List, Optional, TYPE_CHECKING
+from auth import requerir_usuario, requerir_admin
 
 if TYPE_CHECKING:
     from resolvers.categoria import Categoria
@@ -52,7 +53,9 @@ class ProductoQueries:
 class ProductoMutations:
     @strawberry.mutation
     async def crear_producto(self, info: strawberry.Info, datos: ProductoInput) -> Producto:
+        requerir_admin(info)
         pool = info.context["pool"]
+
         async with pool.acquire() as conn:
             if datos.disponible is None:
                 datos.disponible = True
@@ -63,14 +66,28 @@ class ProductoMutations:
 
     @strawberry.mutation
     async def actualizar_producto(self, info: strawberry.Info, id: int, datos: ProductoInput) -> Optional[Producto]:
+        requerir_admin(info)
         pool = info.context["pool"]
         async with pool.acquire() as conn:
-            row = await conn.fetchrow("UPDATE producto SET nombre = $1, precio = $2, imagen = $3, categoria_id = $4, disponible = $5 WHERE id = $6 RETURNING *", datos.nombre, datos.precio, datos.imagen, datos.categoria, datos.disponible, id)
+            actual = await conn.fetchrow("SELECT imagen FROM producto WHERE id = $1", id)
+            if actual is None:
+                raise Exception(f"No existe el producto {id}")
+
+            imagen = datos.imagen if datos.imagen is not None else actual["imagen"]
+            disponible = True if datos.disponible is None else datos.disponible
+
+            row = await conn.fetchrow(
+                "UPDATE producto SET nombre = $1, precio = $2, imagen = $3, categoria_id = $4, disponible = $5 WHERE id = $6 RETURNING *",
+                datos.nombre.strip(), datos.precio, imagen, datos.categoria, disponible, id
+            )
             return Producto(**dict(row)) if row else None
 
     @strawberry.mutation
     async def eliminar_producto(self, info: strawberry.Info, id: int) -> bool:
+        requerir_admin(info)
         pool = info.context["pool"]
         async with pool.acquire() as conn:
             result = await conn.execute("DELETE FROM producto WHERE id = $1", id)
-            return result.endswith("1")  # asyncpg regresa algo como "DELETE 1"
+            if not result.endswith("1"):
+                raise Exception(f"No existe el producto {id}")
+            return True
