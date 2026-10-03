@@ -1,6 +1,9 @@
 .carrito-page {
   max-width: 980px;
   margin: 0 auto;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 5px;
 }
 
 .carrito-heading {
