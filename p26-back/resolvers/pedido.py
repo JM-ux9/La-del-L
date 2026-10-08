@@ -89,7 +89,7 @@ class PedidoMutations:
             async with conn.transaction():
                 producto_ids = list({r.producto_id for r in datos.renglones})
                 productos_rows = await conn.fetch(
-                    "SELECT id, precio, disponible FROM producto WHERE id = ANY($1::int[])", producto_ids
+                    "SELECT id, nombre, precio, disponible FROM producto WHERE id = ANY($1::int[])", producto_ids
                 )
                 productos = {row["id"]: row for row in productos_rows}
 

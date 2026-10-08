@@ -14,3 +14,6 @@ email-validator
 
 # Variables de entorno
 python-dotenv
+
+# Pagos
+mercadopago

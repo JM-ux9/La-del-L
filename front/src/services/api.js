@@ -1,6 +1,7 @@
 import { obtenerToken } from "./auth";
 
 const GRAPHQL_ENDPOINT = import.meta.env.PUBLIC_GRAPHQL_URL || "http://localhost:8000/graphql";
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "");
 
 export async function fetchGraphQL(query, variables = {}) {
   const token = typeof localStorage === "undefined" ? null : obtenerToken();
@@ -25,4 +26,23 @@ export async function fetchGraphQL(query, variables = {}) {
   }
 
   return data;
+}
+
+export async function procesarPago(datos) {
+  const token = typeof localStorage === "undefined" ? null : obtenerToken();
+  const response = await fetch(`${API_BASE_URL}/payments`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: JSON.stringify(datos),
+  });
+
+  const resultado = await response.json();
+  if (!response.ok) {
+    throw new Error(resultado.detail || `Error del servidor: ${response.status}`);
+  }
+
+  return resultado;
 }

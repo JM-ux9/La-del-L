@@ -60,23 +60,8 @@
   font-size: 0.9rem;
 }
 
-.checkout-submit {
-  width: 100%;
-  border: 0;
-  border-radius: 6px;
-  padding: 0.9rem 1.2rem;
-  background: #002169;
-  color: #fff;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.checkout-submit:hover {
-  background: #002169cc;
-}
-
-.checkout-submit:disabled {
-  background: #b5a49a;
-  cursor: wait;
+.checkout-message {
+  margin-bottom: 1rem;
+  color: #1d6841;
+  font-size: 0.9rem;
 }
