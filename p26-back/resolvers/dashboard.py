@@ -16,6 +16,13 @@ class VentaDia:
     pedidos: int
 
 @strawberry.type
+class CategoriaVendida:
+    categoria_id: int
+    nombre: str
+    cantidad_vendida: int
+    total_vendido: float
+
+@strawberry.type
 class DashboardQueries:
     @strawberry.field
     async def productos_mas_vendidos(self, info: strawberry.Info, limite: Optional[int] = None) -> List[ProductoVendido]:
@@ -54,3 +61,20 @@ class DashboardQueries:
                 "ORDER BY dias.dia"
             )
             return [VentaDia(**dict(r)) for r in rows]
+
+    @strawberry.field
+    async def categorias_mas_vendidas(self, info: strawberry.Info) -> List[CategoriaVendida]:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT c.id AS categoria_id, c.nombre, "
+                "COALESCE(SUM(d.cantidad), 0) AS cantidad_vendida, "
+                "COALESCE(SUM(d.importe), 0)::float AS total_vendido "
+                "FROM categoria c "
+                "LEFT JOIN producto p ON p.categoria_id = c.id "
+                "LEFT JOIN detalle_pedido d ON d.producto_id = p.id "
+                "GROUP BY c.id, c.nombre "
+                "ORDER BY cantidad_vendida DESC"
+            )
+            return [CategoriaVendida(**dict(r)) for r in rows]
