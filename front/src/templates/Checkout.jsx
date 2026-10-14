@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fetchGraphQL } from "../services/api";
 import { useCarrito, calcularTotal } from "../store/carrito";
 import "./Checkout.css";
+import React from 'react';
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
 const MUTATION_CREAR_PEDIDO = `
   mutation($datos: PedidoInput!) {
@@ -13,11 +15,44 @@ const MUTATION_CREAR_PEDIDO = `
   }
 `;
 
+initMercadoPago('APP_USR-8bfc9baa-0382-40bc-9c63-1d27439b906d');
+
 function Checkout({ onPedidoCreado, onVolver }) {
   const { items, vaciarCarrito } = useCarrito();
   const total = calcularTotal(items);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
+  const [preferenceId, setPreferenceId] = useState(null);
+
+  useEffect(() => {
+    const createPreference = async () => {
+    try {  
+      const response = await fetch('http://localhost:8000/create-preference', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            title: item.producto.nombre,
+            quantity: item.cantidad,
+            unit_price: item.producto.precio,
+          })),
+        }),
+      })
+      if(response.ok){
+        const data = await response.json();
+        setPreferenceId(data.preference_id);
+        console.log(data);
+      }
+    } catch (error){
+      console.log(error);
+    }
+  }
+  createPreference();
+  }, [items])
+
+  
 
   async function confirmarPedido() {
     setEnviando(true);
@@ -26,6 +61,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
     const renglones = items.map((item) => ({
       productoId: item.producto.id,
       cantidad: item.cantidad,
+      precio: item.producto.precio
     }));
 
     try {
@@ -62,7 +98,10 @@ function Checkout({ onPedidoCreado, onVolver }) {
         </div>
 
         {error && <p className="checkout-error">Error al crear el pedido: {error}</p>}
-
+        
+        {preferenceId && <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Wallet initialization={{ preferenceId: preferenceId }} />
+        </div>}
         <button className="checkout-submit" onClick={confirmarPedido} disabled={enviando}>
           {enviando ? "Procesando..." : "Confirmar pedido"}
         </button>
