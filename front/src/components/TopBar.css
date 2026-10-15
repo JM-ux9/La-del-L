@@ -107,3 +107,15 @@ button {
 button:hover{
   transform: scale(1.1);
 }
+
+.topbar-pedidos {
+  text-decoration: none;
+  color: #4c3c17;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: rgba(237, 223, 190, 0.866);
+}
+.topbar-pedidos:hover {
+    transform: scale(1.1);
+}

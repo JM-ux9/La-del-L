@@ -33,10 +33,14 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_origins=[
+    "http://localhost:5173",
+    "http://localhost:4321",
+    "https://la-del-l.netlify.app",
+],
 )
 
 @app.get("/v1/payment_methods")

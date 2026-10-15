@@ -1,0 +1,52 @@
+.mis-pedidos {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+}
+
+.lista-pedidos,
+.pedido-detalles {
+  list-style: none;
+  padding: 0;
+}
+
+.pedido {
+  background: white;
+  color: #29231f;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pedido-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pedido-status {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: #eee;
+}
+
+.status-pendiente { background: #fff1c2; color: #7a5b00; }
+.status-preparando { background: #dbe8ff; color: #1d4b99; }
+.status-listo { background: #C8D6AF; color: #3D2314; }
+.status-entregado { background: #e2e2e2; color: #444; }
+.status-cancelado { background: #ffd6d6; color: #8a1c1c; }
+
+.pedido-fecha {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.pedido-total {
+  font-weight: 700;
+  text-align: right;
+  margin: 0;
+}

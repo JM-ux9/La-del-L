@@ -1,0 +1,47 @@
+.modal-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.modal {
+  width: min(90%, 360px);
+  padding: 1.5rem;
+  border-radius: 10px;
+  background: white;
+  color: #29231f;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.modal-titulo {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4a7c2a;
+}
+
+.modal-acciones {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.modal-acciones button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(61, 35, 20, 0.2);
+  background: white;
+  color: #3D2314;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-acciones .modal-principal {
+  background: #C8D6AF;
+}
