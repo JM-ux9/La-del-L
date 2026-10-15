@@ -2,6 +2,10 @@ import { useState } from "react";
 import { fetchGraphQL } from "../services/api";
 import { useCarrito, calcularTotal } from "../store/carrito";
 import "./Checkout.css";
+import { loadMercadoPago } from "@mercadopago/sdk-js";
+
+await loadMercadoPago();
+const mp = new window.MercadoPago("APP_USR-78d7b7b4-113d-4ae2-99f4-e9a166448e69");
 
 const MUTATION_CREAR_PEDIDO = `
   mutation($datos: PedidoInput!) {

@@ -5,6 +5,8 @@ from db import create_pool
 from schema import schema
 from fastapi.middleware.cors import CORSMiddleware
 from jwt_service import decodificar_token
+import mercadopago
+sdk = mercadopago.SDK("APP_USR-8440721585130902-101301-c47eb023ef8065e10f65cc0fa6f1fd7f-3748834214")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,5 +39,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/v1/payment_methods")
+def get_payment_methods():
+    payment_methods_response = sdk.payment_methods().list_all()
+    payment_methods = payment_methods_response["response"]
+    return payment_methods
+
 graphql_app = GraphQLRouter(schema, context_getter=get_context)
 app.include_router(graphql_app, prefix="/graphql")
+
