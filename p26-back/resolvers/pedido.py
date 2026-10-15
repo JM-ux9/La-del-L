@@ -61,6 +61,12 @@ class PedidoInput:
     renglones: List[RenglonInput]
     # usuario_id: int
 
+async def pedidos_by_cliente(info: strawberry.Info, id: int) -> List[Pedido]:
+    pool = info.context["pool"]
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("SELECT * FROM pedido WHERE usuario_id = $1", id)
+        return [Pedido (**dict(r)) for r in rows]
+
 @strawberry.type
 class PedidoQueries:
     @strawberry.field
@@ -70,6 +76,19 @@ class PedidoQueries:
         async with pool.acquire() as conn:
             rows = await conn.fetch("SELECT * FROM pedido ORDER BY id LIMIT $1 OFFSET $2", limite or 10, desde or 0)
             return [Pedido (**dict(r)) for r in rows]
+
+    @strawberry.field
+    async def mis_pedidos(self, info: strawberry.Info) -> List[Pedido]:
+        pool = info.context["pool"]
+        usuario = requerir_usuario(info)
+        return await pedidos_by_cliente(info, usuario["usuario_id"])
+
+    @strawberry.field
+    async def pedidos_by_cliente_id(self, info: strawberry.Info, id: int) -> List[Pedido]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        return await pedidos_by_cliente(info, id)
+
 
 @strawberry.type
 class PedidoMutations:
