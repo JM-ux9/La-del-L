@@ -3,6 +3,7 @@ from resolvers.producto import ProductoQueries, ProductoMutations
 from resolvers.categoria import CategoriaQueries
 from resolvers.pedido import PedidoQueries, PedidoMutations
 from resolvers.usuario import UsuarioMutations
+from resolvers.dashboard import DashboardQueries
 
 @strawberry.type
 class Query(ProductoQueries, CategoriaQueries, PedidoQueries, DashboardQueries):

@@ -64,7 +64,14 @@ class PedidoInput:
 async def pedidos_by_cliente(info: strawberry.Info, id: int) -> List[Pedido]:
     pool = info.context["pool"]
     async with pool.acquire() as conn:
-        rows = await conn.fetch("SELECT * FROM pedido WHERE usuario_id = $1", id)
+        rows = await conn.fetch(
+            "SELECT id, "
+            "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+            "total, status, usuario_id "
+            "FROM pedido WHERE usuario_id = $1 "
+            "ORDER BY id DESC",
+            id,
+        )
         return [Pedido (**dict(r)) for r in rows]
 
 @strawberry.type

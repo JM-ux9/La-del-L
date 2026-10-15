@@ -1,0 +1,8 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import MisPedidos from "../components/MisPedidos.jsx";
+---
+
+<BaseLayout titulo="Mis pedidos | Café del L">
+  <MisPedidos client:only="react" />
+</BaseLayout>
