@@ -1,4 +1,4 @@
----
+  ---
 import { fetchGraphQL } from "../services/api";
 import "./SideBar.css";
 
@@ -10,13 +10,20 @@ const data = (await fetchGraphQL(`
     }
   }
 `)) as { categorias: { id: string | number; nombre: string }[] };
+
+const rutaActual = Astro.url.pathname.replace(/\/$/, "");
 ---
 
 <aside class="sidebar">
   <ul>
     {data.categorias.map((categoria) => (
       <li>
-        <a href={`/categorias/${categoria.id}`}>{categoria.nombre}</a>
+        <a
+          href={`/categorias/${categoria.id}`}
+          aria-current={rutaActual === `/categorias/${categoria.id}` ? "page" : undefined}
+        >
+          {categoria.nombre}
+        </a>
       </li>
     ))}
   </ul>

@@ -25,10 +25,12 @@ function BotonAgregar({ producto }) {
   }
 
   return (
-    <div>
-      <button onClick={agregar}>Agregar al carrito</button>
+    <>
+      <button className="agregar-carrito" onClick={agregar}>
+        Agregar al carrito
+      </button>
       {mostrarMensaje && <p className="mensaje-agregado">✓ Producto agregado</p>}
-    </div>
+    </>
   );
 }
 

@@ -1,12 +1,27 @@
 .topbar {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   background: #3D2314;
   color: #FFF8E7;
   padding: 1rem 2rem;
 }
 
-input {
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  white-space: nowrap;
+}
+
+.topbar input {
   border: 1px solid #d9c8ba;
   border-radius: 6px;
   max-height: fit-content;
@@ -29,19 +44,52 @@ input {
   gap: 0.4rem;
 }
 
+.topbar-logo {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
 .topbar-logout {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
   padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  transform: none;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.topbar-logout:hover {
+  background: rgba(255, 248, 231, 0.16);
+  transform: none;
+}
+
+.topbar-logout:active {
+  background: rgba(255, 248, 231, 0.26);
+}
+
+.topbar-logout:focus-visible {
+  outline: 2px solid #FFF8E7;
+  outline-offset: 2px;
 }
 
 .topbar-logout svg {
   width: 1.30rem;
   height: 1.30rem;
   display: block;
+  transition: transform 0.18s ease;
+}
+
+.topbar-logout:hover svg {
+  transform: translateX(2px);
 }
 
 button {

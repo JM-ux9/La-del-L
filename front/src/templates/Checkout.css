@@ -5,8 +5,7 @@
 }
 
 .checkout-page > .checkout-back {
-  align-self: flex-start;
-  width: min(520px, 100%);
+  align-self: center;
 }
 
 .checkout-panel {
