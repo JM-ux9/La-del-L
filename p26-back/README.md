@@ -39,6 +39,10 @@ DATABASE_URL=postgresql://postgres.uofaxfmbilrtjorblprt:e-commerce-kegovc@aws-0-
 
 El archivo `.env` está excluido de Git mediante `.gitignore`. Usa la cadena de conexión proporcionada por Supabase y conserva sus credenciales únicamente en variables de entorno.
 
+Agrega también `SECRET_KEY` y `MERCADOPAGO_ACCESS_TOKEN` al archivo `.env`.
+Usa las credenciales de prueba de MercadoPago mientras validas la integración y
+no incluyas el access token en el frontend.
+
 ## Ejecución
 
 Inicia el servidor en modo desarrollo:
@@ -50,6 +54,8 @@ python -m uvicorn main:app --reload
 La API estará disponible en:
 
 - GraphQL: http://127.0.0.1:8000/graphql
+- Crear pago: `POST http://127.0.0.1:8000/v1/payments` (requiere un token de acceso
+  y el encabezado `X-Idempotency-Key`)
 
 Para iniciar el servidor en un puerto específico:
 

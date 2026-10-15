@@ -38,6 +38,13 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+## MercadoPago checkout
+
+Set `PUBLIC_MERCADOPAGO_PUBLIC_KEY` in the frontend environment to the public key
+for the MercadoPago account before using card payments. The frontend tokenizes
+card details with MercadoPago's Card Payment Brick and sends the resulting token
+to `http://localhost:8000/v1/payments`; set `PUBLIC_API_URL` to change the API host.
+
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
