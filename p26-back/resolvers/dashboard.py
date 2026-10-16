@@ -40,7 +40,15 @@ class DashboardQueries:
                 "LIMIT $1",
                 limite or 5,
             )
-            return [ProductoVendido(**dict(r)) for r in rows]
+            return [
+                ProductoVendido(
+                    producto_id=r["producto_id"],
+                    nombre=r["nombre"],
+                    cantidad_vendida=int(r["cantidad_vendida"]),
+                    total_vendido=float(r["total_vendido"]),
+                )
+                for r in rows
+            ]
 
     @strawberry.field
     async def ventas_semana(self, info: strawberry.Info) -> List[VentaDia]:
@@ -60,7 +68,14 @@ class DashboardQueries:
                 "GROUP BY dias.dia "
                 "ORDER BY dias.dia"
             )
-            return [VentaDia(**dict(r)) for r in rows]
+            return [
+                VentaDia(
+                    fecha=r["fecha"],
+                    total=float(r["total"]),
+                    pedidos=int(r["pedidos"]),
+                )
+                for r in rows
+            ]
 
     @strawberry.field
     async def categorias_mas_vendidas(self, info: strawberry.Info) -> List[CategoriaVendida]:
@@ -77,4 +92,12 @@ class DashboardQueries:
                 "GROUP BY c.id, c.nombre "
                 "ORDER BY cantidad_vendida DESC"
             )
-            return [CategoriaVendida(**dict(r)) for r in rows]
+            return [
+                CategoriaVendida(
+                    categoria_id=r["categoria_id"],
+                    nombre=r["nombre"],
+                    cantidad_vendida=int(r["cantidad_vendida"]),
+                    total_vendido=float(r["total_vendido"]),
+                )
+                for r in rows
+            ]
