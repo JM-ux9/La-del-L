@@ -1,6 +1,7 @@
 ---
 import ContadorCarrito from "./ContadorCarrito.jsx";
 import BotonCerrarSesion from "./BotonCerrarSesion.jsx";
+import BotonDashboard from "./BotonDashboard.jsx";
 import "./TopBar.css";
 ---
 
@@ -14,6 +15,7 @@ import "./TopBar.css";
     <div class="topbar-busqueda">
       <input type="text" placeholder="Buscar productos..." id="busqueda" />
     </div>
+    <BotonDashboard client:load />
     <BotonCerrarSesion client:load />
     <img
       src="https://cdn-icons-png.flaticon.com/512/8230/8230211.png"

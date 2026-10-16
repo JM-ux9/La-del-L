@@ -1,0 +1,30 @@
+.pagina-dashboard {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard-acceso-restringido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 40vh;
+  gap: 1rem;
+}
+
+.dashboard-acceso-restringido svg {
+  width: 5rem;
+  height: 5rem;
+}
+
+.pagina-dashboard a {
+  color: #3D2314;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.pagina-dashboard a:hover {
+  opacity: 0.8;
+}
