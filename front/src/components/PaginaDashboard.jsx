@@ -117,7 +117,9 @@ function PaginaDashboard() {
 
   return (
     <section className="pagina-dashboard">
-      <a href="/">← Volver</a>
+      <a className="dashboard-back" href="/">
+        ← Volver
+      </a>
       <h2>Dashboard</h2>
       <div className="chart-container">
         <div className="chart-section">

@@ -105,6 +105,7 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   color: var(--aurora-text);
 }
 
+.dashboard-back,
 .miPedido-back,
 .categoria-back,
 .producto-back,
@@ -127,6 +128,7 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
+.dashboard-back:hover,
 .miPedido-back:hover,
 .categoria-back:hover,
 .producto-back:hover,
