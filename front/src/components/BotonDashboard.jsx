@@ -37,6 +37,9 @@ function BotonDashboard() {
       className="topbar-dashboard"
       title="Dashboard"
       aria-label="Dashboard"
+      onClick={() => {
+        window.location.href = "/dashboard";
+      }}
     >
       {ICONO_DASHBOARD}
     </button>
