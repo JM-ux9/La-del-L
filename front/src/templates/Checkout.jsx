@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchGraphQL } from "../services/api";
-import { crearPagoMercadoPago, obtenerMercadoPago } from "../services/payments";
+import {
+  consultarEstadoOrdenMercadoPago,
+  crearOrdenMercadoPago,
+  obtenerMercadoPago,
+} from "../services/payments";
 import { useCarrito, calcularTotal } from "../store/carrito";
 import "./Checkout.css";
 
@@ -23,9 +27,12 @@ function Checkout({ onPedidoCreado, onVolver }) {
   const [brickListo, setBrickListo] = useState(false);
   const [errorSdk, setErrorSdk] = useState(null);
   const [error, setError] = useState(null);
+  const [resultadoPendiente, setResultadoPendiente] = useState(null);
   const pedidoPendiente = useRef(null);
   const claveIdempotencia = useRef(null);
   const brickContainer = useRef(null);
+  const enviandoRef = useRef(false);
+  const pagoIniciadoRef = useRef(false);
 
   useEffect(() => {
     if (!modalAbierto) return undefined;
@@ -49,7 +56,13 @@ function Checkout({ onPedidoCreado, onVolver }) {
   }, [modalAbierto]);
 
   useEffect(() => {
-    if (!modalAbierto || !mercadoPago || !brickContainer.current) return undefined;
+    if (
+      !modalAbierto ||
+      !mercadoPago ||
+      !brickContainer.current ||
+      pagoIniciadoRef.current ||
+      resultadoPendiente
+    ) return undefined;
 
     let activo = true;
     let brickController;
@@ -66,7 +79,10 @@ function Checkout({ onPedidoCreado, onVolver }) {
             onReady: () => {
               if (activo) setBrickListo(true);
             },
-            onSubmit: async (formData) => {
+            onSubmit: async (formData, additionalData) => {
+              if (enviandoRef.current) return;
+              enviandoRef.current = true;
+              pagoIniciadoRef.current = true;
               setEnviando(true);
               setError(null);
 
@@ -78,7 +94,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
                 const camposFaltantes = [
                   ["token", formData?.token],
                   ["payment_method_id", formData?.payment_method_id],
-                  ["issuer_id", formData?.issuer_id],
+                  ["payment_type_id", additionalData?.paymentTypeId],
                   ["installments", formData?.installments],
                   ["payer.email", formData?.payer?.email],
                 ]
@@ -104,16 +120,23 @@ function Checkout({ onPedidoCreado, onVolver }) {
                   pedidoPendiente.current = pedido;
                 }
 
+                if (Number(pedido.total).toFixed(2) !== Number(total).toFixed(2)) {
+                  throw new Error(
+                    "El total cambió desde que agregaste los productos. Actualiza el carrito antes de pagar."
+                  );
+                }
+
                 if (!claveIdempotencia.current) {
                   claveIdempotencia.current = crypto.randomUUID();
                 }
 
-                const resultadoPago = await crearPagoMercadoPago({
+                const paymentMethodId = String(formData.payment_method_id);
+                const resultadoOrden = await crearOrdenMercadoPago({
                   pedido_id: pedido.id,
                   token: formData.token,
-                  payment_method_id: formData.payment_method_id,
+                  payment_method_id: paymentMethodId,
+                  payment_method_type: additionalData.paymentTypeId,
                   installments: Number(formData.installments),
-                  issuer_id: String(formData.issuer_id),
                   payer: {
                     email: formData.payer.email,
                     ...(formData.payer.identification?.type && formData.payer.identification?.number
@@ -127,24 +150,25 @@ function Checkout({ onPedidoCreado, onVolver }) {
                   },
                 }, claveIdempotencia.current);
 
-                if (resultadoPago.status !== "approved") {
-                  if (resultadoPago.status === "rejected") {
-                    claveIdempotencia.current = null;
-                  }
-                  throw new Error(
-                    `El pago quedó ${resultadoPago.status}${resultadoPago.status_detail ? ` (${resultadoPago.status_detail})` : ""}.`
-                  );
+                if (resultadoOrden.status !== "processed") {
+                  setResultadoPendiente({
+                    ...resultadoOrden,
+                    pedido_id: pedido.id,
+                  });
+                  return;
                 }
 
                 vaciarCarrito();
                 onPedidoCreado(pedido);
               } catch (err) {
+                pagoIniciadoRef.current = false;
                 const mensaje = err instanceof Error ? err.message : "Error desconocido al procesar el pago.";
                 console.error("No se pudo procesar el pago del Checkout:", err);
                 setError(mensaje);
                 throw err;
               } finally {
-                if (activo) setEnviando(false);
+                enviandoRef.current = false;
+                setEnviando(false);
               }
             },
             onError: (err) => {
@@ -174,7 +198,65 @@ function Checkout({ onPedidoCreado, onVolver }) {
       if (brickController) brickController.unmount();
       setBrickListo(false);
     };
-  }, [modalAbierto, mercadoPago, total, items, vaciarCarrito, onPedidoCreado]);
+  }, [
+    modalAbierto,
+    mercadoPago,
+    total,
+    items,
+    vaciarCarrito,
+    onPedidoCreado,
+    resultadoPendiente,
+  ]);
+
+  useEffect(() => {
+    if (!resultadoPendiente?.pedido_id || resultadoPendiente.status === "canceled") {
+      return undefined;
+    }
+
+    let activo = true;
+    let temporizador;
+
+    async function consultarEstado() {
+      try {
+        const resultado = await consultarEstadoOrdenMercadoPago(
+          resultadoPendiente.pedido_id
+        );
+        if (!activo) return;
+
+        if (resultado.status === "PAGADO") {
+          const pedido = pedidoPendiente.current;
+          setResultadoPendiente(null);
+          vaciarCarrito();
+          onPedidoCreado(pedido);
+          return;
+        }
+        if (resultado.status === "RECHAZADO") {
+          setResultadoPendiente((actual) => ({
+            ...actual,
+            status: "canceled",
+          }));
+          return;
+        }
+      } catch (err) {
+        console.error("No se pudo consultar el estado de la orden:", err);
+      }
+
+      if (activo) {
+        temporizador = window.setTimeout(consultarEstado, 5000);
+      }
+    }
+
+    consultarEstado();
+    return () => {
+      activo = false;
+      window.clearTimeout(temporizador);
+    };
+  }, [
+    resultadoPendiente?.pedido_id,
+    resultadoPendiente?.status,
+    vaciarCarrito,
+    onPedidoCreado,
+  ]);
 
   function cerrarModal() {
     if (!enviando) {
@@ -243,14 +325,54 @@ function Checkout({ onPedidoCreado, onVolver }) {
             )}
             {error && <p className="checkout-error" role="alert">No se pudo completar el pago: {error}</p>}
 
-            {!errorSdk && !brickListo && (
-              <p className="checkout-payment-loading">Cargando formulario de pago seguro...</p>
+            {resultadoPendiente ? (
+              <div className="checkout-payment-pending" role="status">
+                {resultadoPendiente.status === "canceled" ? (
+                  <>
+                    <p>El pago fue cancelado. Puedes intentar de nuevo con otra tarjeta.</p>
+                    <button
+                      className="checkout-submit"
+                      type="button"
+                      onClick={() => {
+                        claveIdempotencia.current = null;
+                        pagoIniciadoRef.current = false;
+                        enviandoRef.current = false;
+                        setResultadoPendiente(null);
+                      }}
+                    >
+                      Intentar de nuevo
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      {resultadoPendiente.status === "action_required"
+                        ? "Completa la verificación de tu tarjeta para continuar."
+                        : "Estamos confirmando tu pago. No vuelvas a enviarlo; esta página se actualizará automáticamente."}
+                    </p>
+                    {resultadoPendiente.url && (
+                      <iframe
+                        title="Verificación segura de Mercado Pago"
+                        src={resultadoPendiente.url}
+                        className="checkout-payment-challenge"
+                      />
+                    )}
+                    <a href="/mis-pedidos">Consultar mis pedidos</a>
+                  </>
+                )}
+              </div>
+            ) : (
+              <>
+                {!errorSdk && !brickListo && (
+                  <p className="checkout-payment-loading">Cargando formulario de pago seguro...</p>
+                )}
+                <div
+                  id="cardPaymentBrick_container"
+                  ref={brickContainer}
+                  className="checkout-card-payment-brick"
+                />
+              </>
             )}
-            <div
-              id="cardPaymentBrick_container"
-              ref={brickContainer}
-              className="checkout-card-payment-brick"
-            />
             <div className="checkout-modal-actions">
               <button
                 className="checkout-modal-cancel"

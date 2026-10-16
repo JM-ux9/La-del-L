@@ -144,6 +144,23 @@
   min-height: 12rem;
 }
 
+.checkout-payment-pending {
+  display: grid;
+  gap: 1rem;
+  color: #6c625b;
+}
+
+.checkout-payment-pending a {
+  color: #002169;
+  font-weight: 700;
+}
+
+.checkout-payment-challenge {
+  width: 100%;
+  min-height: 28rem;
+  border: 0;
+}
+
 .checkout-modal-actions {
   display: flex;
   justify-content: flex-end;

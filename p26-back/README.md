@@ -39,9 +39,11 @@ DATABASE_URL=postgresql://postgres.uofaxfmbilrtjorblprt:e-commerce-kegovc@aws-0-
 
 El archivo `.env` está excluido de Git mediante `.gitignore`. Usa la cadena de conexión proporcionada por Supabase y conserva sus credenciales únicamente en variables de entorno.
 
-Agrega también `SECRET_KEY` y `MERCADOPAGO_ACCESS_TOKEN` al archivo `.env`.
-Usa las credenciales de prueba de MercadoPago mientras validas la integración y
-no incluyas el access token en el frontend.
+Agrega también `SECRET_KEY`, `MERCADOPAGO_ACCESS_TOKEN` y
+`MERCADOPAGO_WEBHOOK_SECRET` al archivo `.env`. Durante las pruebas, usa la llave
+pública de prueba en el frontend y el Access Token de prueba de la misma
+aplicación aquí. No incluyas el Access Token ni el secreto del webhook en el
+frontend.
 
 ## Ejecución
 
@@ -54,8 +56,16 @@ python -m uvicorn main:app --reload
 La API estará disponible en:
 
 - GraphQL: http://127.0.0.1:8000/graphql
-- Crear pago: `POST http://127.0.0.1:8000/v1/payments` (requiere un token de acceso
-  y el encabezado `X-Idempotency-Key`)
+- Crear orden Checkout API: `POST http://127.0.0.1:8000/v1/orders` (requiere un
+  token de acceso y el encabezado `X-Idempotency-Key`)
+- Consultar estado del pedido: `GET http://127.0.0.1:8000/v1/orders/{pedido_id}/status`
+- Webhook de Orders: `POST http://127.0.0.1:8000/v1/mercadopago/webhook`
+
+En el panel de Mercado Pago, configura el evento **Order (Mercado Pago)** para
+apuntar al webhook y copia el secreto generado a `MERCADOPAGO_WEBHOOK_SECRET`.
+Para probar el webhook mientras el backend corre en localhost se necesita una
+URL HTTPS pública temporal (por ejemplo, mediante un túnel); el checkout y la
+creación de órdenes sí pueden probarse directamente en localhost.
 
 Para iniciar el servidor en un puerto específico:
 

@@ -7,15 +7,15 @@ const API_BASE_URL = (
   import.meta.env.PUBLIC_API_URL || GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "")
 ).replace(/\/$/, "");
 
-export const PAYMENTS_ENDPOINT = `${API_BASE_URL}/v1/payments`;
+export const ORDERS_ENDPOINT = `${API_BASE_URL}/v1/orders`;
 
-export async function crearPagoMercadoPago(datos, idempotencyKey) {
+export async function crearOrdenMercadoPago(datos, idempotencyKey) {
   const token = obtenerToken();
   if (!token) {
     throw new Error("Inicia sesión para realizar el pago");
   }
 
-  const response = await fetch(PAYMENTS_ENDPOINT, {
+  const response = await fetch(ORDERS_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -23,6 +23,37 @@ export async function crearPagoMercadoPago(datos, idempotencyKey) {
       "X-Idempotency-Key": idempotencyKey,
     },
     body: JSON.stringify(datos),
+  });
+
+  let resultado;
+  try {
+    resultado = await response.json();
+  } catch {
+    throw new Error(`Respuesta inválida del servidor (${response.status})`);
+  }
+
+  if (!response.ok) {
+    const detalle = resultado.detail;
+    const mensaje =
+      typeof detalle === "string"
+        ? detalle
+        : detalle?.message || JSON.stringify(detalle) || `Error ${response.status}`;
+    const error = new Error(mensaje);
+    error.status = response.status;
+    throw error;
+  }
+
+  return resultado;
+}
+
+export async function consultarEstadoOrdenMercadoPago(pedidoId) {
+  const token = obtenerToken();
+  if (!token) {
+    throw new Error("Inicia sesión para consultar el estado del pedido");
+  }
+
+  const response = await fetch(`${ORDERS_ENDPOINT}/${pedidoId}/status`, {
+    headers: { Authorization: `Bearer ${token}` },
   });
 
   let resultado;
