@@ -1,10 +1,10 @@
 const ICONO_DASHBOARD = (
-  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="#ffffff">
     <g id="SVGRepo_bgCarrier" strokeWidth={0} />
     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
     <g id="SVGRepo_iconCarrier">
       <defs>
-        <style>{".cls-1{fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;}"}</style>
+        <style>{".cls-1{fill:none;stroke:#ffffff;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;}"}</style>
       </defs>
       <title />
       <g id="dashboard">
