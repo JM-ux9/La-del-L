@@ -11,6 +11,15 @@
   z-index: 50;
 }
 
+.topbar-titulo {
+  background: #3D2314;
+  color: #FFF8E7;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .topbar-left {
   display: flex;
   align-items: center;

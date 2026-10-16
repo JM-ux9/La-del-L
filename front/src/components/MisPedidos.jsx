@@ -86,7 +86,7 @@ function MisPedidos() {
 
   return (
     <section className="mis-pedidos">
-      <a href="/">← Volver</a>
+      <a className="miPedido-back" href="/">← Volver</a>
       <h2>Mis pedidos</h2>
       {contenido}
     </section>
