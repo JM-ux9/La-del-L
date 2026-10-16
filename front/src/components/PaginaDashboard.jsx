@@ -117,10 +117,10 @@ function PaginaDashboard() {
 
   return (
     <section className="pagina-dashboard">
-      <a className="dashboard-back" href="/">
+      <a style={{ paddingLeft: '0.5rem' }} className="dashboard-back" href="/">
         ← Volver
       </a>
-      <h2>Dashboard</h2>
+      <h2 style={{ paddingLeft: '0.5rem' }}>Dashboard</h2>
       <div className="chart-container">
         <div className="chart-section">
           <h3>Productos más vendidos</h3>
