@@ -2,6 +2,7 @@
 fastapi
 uvicorn
 strawberry-graphql
+mercadopago
 
 # Base de datos
 asyncpg
