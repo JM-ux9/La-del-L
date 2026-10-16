@@ -4,21 +4,6 @@
   padding: 2rem;
 }
 
-.dashboard-acceso-restringido {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 40vh;
-  gap: 1rem;
-}
-
-.dashboard-acceso-restringido svg {
-  width: 5rem;
-  height: 5rem;
-}
-
 .pagina-dashboard a {
   color: #3D2314;
   text-decoration: underline;
