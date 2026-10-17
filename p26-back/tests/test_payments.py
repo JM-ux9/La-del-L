@@ -141,7 +141,7 @@ class CrearOrdenEndpointTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(respuesta["status"], "processing")
         self.assertEqual(self.pool.connection.executed, [])
 
-    async def test_canceled_order_updates_local_order_as_rejected(self):
+    async def test_canceled_order_returns_clear_error_and_updates_local_order(self):
         with (
             patch("main.usuario_desde_autorizacion", return_value={"usuario_id": 7}),
             patch("main.sdk", object()),
@@ -149,21 +149,150 @@ class CrearOrdenEndpointTests(unittest.IsolatedAsyncioTestCase):
                 "main.crear_orden",
                 return_value={
                     "status": 201,
-                    "response": {"id": "order-989", "status": "canceled"},
+                    "response": {
+                        "id": "order-989",
+                        "status": "canceled",
+                        "transactions": {
+                            "payments": [
+                                {
+                                    "status": "canceled",
+                                    "status_detail": "cc_rejected_insufficient_amount",
+                                }
+                            ]
+                        },
+                    },
                 },
             ),
         ):
-            respuesta = await main.crear_orden_endpoint(
-                self.datos,
-                make_request(self.pool),
-                idempotency_key="idempotency-canceled",
+            with self.assertRaises(HTTPException) as error:
+                await main.crear_orden_endpoint(
+                    self.datos,
+                    make_request(self.pool),
+                    idempotency_key="idempotency-canceled",
                 authorization="Bearer test-token",
             )
 
-        self.assertEqual(respuesta["status"], "canceled")
+        self.assertEqual(error.exception.status_code, 402)
+        self.assertEqual(
+            error.exception.detail,
+            {
+                "code": "cc_rejected_insufficient_amount",
+                "message": "La tarjeta no tiene fondos suficientes para completar el pago.",
+            },
+        )
         self.assertEqual(
             self.pool.connection.executed,
             [("RECHAZADO", 42, "PAGADO")],
+        )
+
+    async def test_returns_api_error_without_marking_uncreated_order_rejected(self):
+        with (
+            patch("main.usuario_desde_autorizacion", return_value={"usuario_id": 7}),
+            patch("main.sdk", object()),
+            patch(
+                "main.crear_orden",
+                return_value={
+                    "status": 400,
+                    "response": {
+                        "errors": [{"code": "failed", "message": "Payment was declined"}]
+                    },
+                },
+            ),
+        ):
+            with self.assertRaises(HTTPException) as error:
+                await main.crear_orden_endpoint(
+                    self.datos,
+                    make_request(self.pool),
+                    idempotency_key="idempotency-error-response",
+                        authorization="******",
+                )
+
+        self.assertEqual(error.exception.status_code, 502)
+        self.assertEqual(
+            error.exception.detail,
+            {
+                "code": "failed",
+                "message": "Payment was declined",
+            },
+        )
+        self.assertEqual(self.pool.connection.executed, [])
+
+    async def test_fetches_rejected_order_details_by_id_before_returning_error(self):
+        with (
+            patch("main.usuario_desde_autorizacion", return_value={"usuario_id": 7}),
+            patch("main.sdk", object()),
+            patch(
+                "main.crear_orden",
+                return_value={
+                    "status": 201,
+                    "response": {
+                        "id": "order-rejected",
+                        "errors": [{"code": "failed"}],
+                    },
+                },
+            ),
+            patch(
+                "main.obtener_orden",
+                return_value={
+                    "status": 200,
+                    "response": {
+                        "id": "order-rejected",
+                        "status": "canceled",
+                        "transactions": {
+                            "payments": [
+                                {
+                                    "status": "rejected",
+                                    "status_detail": "cc_rejected_insufficient_amount",
+                                }
+                            ]
+                        },
+                    },
+                },
+            ) as obtener_orden_mock,
+        ):
+            with self.assertRaises(HTTPException) as error:
+                await main.crear_orden_endpoint(
+                    self.datos,
+                    make_request(self.pool),
+                    idempotency_key="idempotency-order-lookup",
+                    authorization="******",
+                )
+
+        obtener_orden_mock.assert_called_once()
+        self.assertEqual(obtener_orden_mock.call_args.args[1], "order-rejected")
+        self.assertEqual(
+            error.exception.detail,
+            {
+                "code": "cc_rejected_insufficient_amount",
+                "message": "La tarjeta no tiene fondos suficientes para completar el pago.",
+            },
+        )
+        self.assertEqual(
+            self.pool.connection.executed,
+            [("RECHAZADO", 42, "PAGADO")],
+        )
+
+    def test_translates_known_payment_rejection_details(self):
+        casos = {
+            "cc_rejected_bad_filled_security_code": "El código de seguridad de la tarjeta no es válido. Revísalo e inténtalo de nuevo.",
+            "cc_rejected_call_for_authorize": "Tu banco requiere que autorices este pago. Comunícate con él e inténtalo de nuevo.",
+            "cc_rejected_other_reason": "Tu banco no aprobó el pago. Comunícate con él o intenta con otra tarjeta.",
+        }
+
+        for status_detail, mensaje in casos.items():
+            with self.subTest(status_detail=status_detail):
+                self.assertEqual(main.mensaje_rechazo_pago(status_detail), mensaje)
+
+    def test_uses_clear_fallback_for_unknown_rejection_detail(self):
+        self.assertEqual(
+            main.mensaje_rechazo_pago("unknown_rejection"),
+            "Mercado Pago rechazó el pago. Verifica los datos o intenta con otra tarjeta.",
+        )
+
+    def test_uses_generic_message_for_failed_code_without_test_cardholder(self):
+        self.assertEqual(
+            main.mensaje_rechazo_pago("failed"),
+            "Mercado Pago rechazó el pago. Verifica los datos o intenta con otra tarjeta.",
         )
 
     async def test_accepts_cardholder_without_optional_identification(self):

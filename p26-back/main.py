@@ -17,6 +17,117 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+MENSAJES_RECHAZO_PAGO = {
+    # Datos mal capturados
+    "bad_filled_card_data": "Revisa los datos de tu tarjeta (número, vencimiento y código de seguridad) e inténtalo de nuevo.",
+    "invalid_card_token": "No pudimos validar tu tarjeta. Vuelve a ingresar los datos e inténtalo de nuevo.",
+    # Rechazos del banco emisor
+    "insufficient_amount": "La tarjeta no tiene fondos suficientes para completar el pago.",
+    "amount_limit_exceeded": "El monto excede el límite permitido de tu tarjeta. Intenta con otra tarjeta.",
+    "required_call_for_authorize": "Tu banco requiere que autorices este pago. Comunícate con él e inténtalo de nuevo.",
+    "card_disabled": "La tarjeta está deshabilitada. Comunícate con tu banco o intenta con otra tarjeta.",
+    "invalid_installments": "La cantidad de mensualidades no es válida para esta tarjeta. Selecciona otra opción.",
+    "max_attempts_exceeded": "Se alcanzó el límite de intentos para esta tarjeta. Intenta más tarde o con otra tarjeta.",
+    "cc_rejected_duplicated_payment": "Este pago ya fue enviado. Revisa tus pedidos antes de volver a intentarlo.",
+    "rejected_by_issuer": "Tu banco rechazó el pago. Comunícate con él o intenta con otra tarjeta.",
+    "cc_rejected_other_reason": "Tu banco no aprobó el pago. Comunícate con él o intenta con otra tarjeta.",
+    "processing_error": "Ocurrió un error al procesar el pago. Inténtalo de nuevo en unos minutos.",
+    # Riesgo: genéricos a propósito
+    "high_risk": "El pago no pudo aprobarse por motivos de seguridad. Intenta con otro medio de pago.",
+    "in_review": "No pudimos confirmar el pago. Intenta con otro medio de pago.",
+}
+
+MENSAJES_ERROR_API = {
+    "idempotency_key_already_used": "Este intento de pago ya fue enviado. Vuelve a intentarlo.",
+    "resource_locked": "Tu pago ya se está procesando. Espera unos segundos.",
+    "internal_error": "Mercado Pago tuvo un problema temporal. Inténtalo de nuevo en unos minutos.",
+}
+
+def mensaje_error_api(codigo: str | None) -> str:
+    return MENSAJES_ERROR_API.get(
+        codigo,
+        "No pudimos procesar tu pago en este momento. Inténtalo de nuevo o usa otro medio de pago.",
+    )
+
+def obtener_detalle_rechazo(orden: dict | None) -> str | None:
+    if not isinstance(orden, dict):
+        return None
+
+    transacciones = orden.get("transactions")
+    pagos = transacciones.get("payments") if isinstance(transacciones, dict) else None
+    pagos = pagos if isinstance(pagos, list) else []
+    detalles = [
+        pago.get("status_detail")
+        for pago in pagos or []
+        if isinstance(pago, dict)
+        and pago.get("status") in {"canceled", "failed", "rejected"}
+        and isinstance(pago.get("status_detail"), str)
+        and pago.get("status_detail")
+    ]
+    detalle_orden = orden.get("status_detail")
+    if isinstance(detalle_orden, str) and detalle_orden:
+        detalles.append(detalle_orden)
+    if not detalles:
+        detalles.extend(
+            pago.get("status_detail")
+            for pago in pagos
+            if isinstance(pago, dict)
+        )
+    return next(
+        (
+            detalle
+            for detalle in detalles
+            if isinstance(detalle, str) and detalle
+        ),
+        None,
+    )
+
+
+def orden_tiene_pago_rechazado(orden: dict | None) -> bool:
+    if not isinstance(orden, dict):
+        return False
+    if orden.get("status") in {"canceled", "failed", "rejected"}:
+        return True
+
+    transacciones = orden.get("transactions")
+    pagos = transacciones.get("payments") if isinstance(transacciones, dict) else None
+    return isinstance(pagos, list) and any(
+        isinstance(pago, dict)
+        and pago.get("status") in {"canceled", "failed", "rejected"}
+        for pago in pagos
+    )
+
+
+def obtener_error_api(orden: dict | None) -> tuple[str | None, str | None]:
+    if not isinstance(orden, dict):
+        return None, None
+
+    errores = orden.get("errors")
+    errores = errores if isinstance(errores, list) else [errores]
+    for error in errores:
+        if not isinstance(error, dict):
+            continue
+        codigo = error.get("code") or error.get("error")
+        mensaje = error.get("message") or error.get("description")
+        return (
+            codigo if isinstance(codigo, str) else None,
+            mensaje if isinstance(mensaje, str) else None,
+        )
+    codigo = orden.get("code") or orden.get("error")
+    mensaje = orden.get("message") or orden.get("description")
+    return (
+        codigo if isinstance(codigo, str) else None,
+        mensaje if isinstance(mensaje, str) else None,
+    )
+
+
+def mensaje_rechazo_pago(status_detail: str | None) -> str:
+    return MENSAJES_RECHAZO_PAGO.get(
+        status_detail,
+        "Mercado Pago rechazó el pago. Verifica los datos o intenta con otra tarjeta.",
+    )
+
+
 mercadopago_access_token = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
 sdk = mercadopago.SDK(mercadopago_access_token) if mercadopago_access_token else None
 mercadopago_webhook_secret = os.getenv("MERCADOPAGO_WEBHOOK_SECRET")
@@ -168,6 +279,7 @@ async def crear_orden_endpoint(
             datos_orden,
             idempotency_key,
         )
+        # logger.warning("MP respuesta cruda: %s", resultado)
     except (requests.RequestException, ValueError, TypeError):
         logger.exception("No se pudo crear la orden de MercadoPago para el pedido %s", pedido["id"])
         raise HTTPException(
@@ -181,21 +293,125 @@ async def crear_orden_endpoint(
 
     codigo_respuesta = resultado.get("status", 500)
     orden = resultado.get("response")
-    if not isinstance(codigo_respuesta, int) or not 200 <= codigo_respuesta < 300:
+    if not isinstance(orden, dict) and resultado.get("errors"):
+        orden = resultado
+    if isinstance(orden, dict) and isinstance(orden.get("data"), dict):
+        orden = {**orden["data"], "errors": orden.get("errors")}
+    status_detail = obtener_detalle_rechazo(orden)
+    codigo_error, mensaje_error = obtener_error_api(orden)
+    orden_rechazada = orden_tiene_pago_rechazado(orden)
+    respuesta_fallida = not isinstance(codigo_respuesta, int) or not 200 <= codigo_respuesta < 300
+    respuesta_requiere_detalle = (
+        orden_rechazada
+        or respuesta_fallida
+        or (isinstance(orden, dict) and bool(orden.get("errors")))
+    )
+
+    if (
+        isinstance(orden, dict)
+        and orden.get("id")
+        and not status_detail
+        and respuesta_requiere_detalle
+    ):
+        try:
+            resultado_consulta = await run_in_threadpool(
+                obtener_orden,
+                sdk,
+                str(orden["id"]),
+            )
+        except (requests.RequestException, ValueError, TypeError):
+            logger.exception(
+                "No se pudo consultar la orden de Mercado Pago %s para obtener el detalle del rechazo",
+                orden["id"],
+            )
+        else:
+            if (
+                isinstance(resultado_consulta, dict)
+                and isinstance(resultado_consulta.get("status"), int)
+                and 200 <= resultado_consulta["status"] < 300
+                and isinstance(resultado_consulta.get("response"), dict)
+            ):
+                status_detail_consulta = obtener_detalle_rechazo(
+                    resultado_consulta["response"]
+                )
+                orden = resultado_consulta["response"]
+                status_detail = status_detail_consulta or status_detail
+                codigo_consulta, mensaje_consulta = obtener_error_api(orden)
+                codigo_error = codigo_consulta or codigo_error
+                mensaje_error = mensaje_consulta or mensaje_error
+                orden_rechazada = orden_tiene_pago_rechazado(orden)
+            else:
+                logger.warning(
+                    "Mercado Pago no devolvió la orden %s al consultar el detalle del rechazo",
+                    orden["id"],
+                )
+    elif respuesta_requiere_detalle and not (
+        isinstance(orden, dict) and orden.get("id")
+    ):
         logger.warning(
-            "MercadoPago rechazó la orden para el pedido %s con estado HTTP %s",
+            "Mercado Pago indicó rechazo/error para el pedido %s sin un ID de orden consultable (código %s)",
+            pedido["id"],
+            codigo_error,
+        )
+
+    if orden_rechazada:
+        if not status_detail:
+            logger.warning(
+                "La orden de Mercado Pago %s fue rechazada sin transactions.payments.status_detail (código %s)",
+                orden.get("id") if isinstance(orden, dict) else None,
+                codigo_error,
+            )
+        async with pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE pedido SET status = $1 WHERE id = $2 AND status <> $3",
+                "RECHAZADO",
+                pedido["id"],
+                "PAGADO",
+            )
+        raise HTTPException(
+            status_code=402,
+            detail={
+                "code": status_detail or codigo_error,
+                "message": mensaje_rechazo_pago(status_detail)
+                if status_detail
+                else mensaje_error
+                or "Mercado Pago rechazó el pago. Verifica los datos o intenta con otra tarjeta.",
+            },
+        )
+
+    if respuesta_fallida or codigo_respuesta == 402:
+        logger.warning(
+            "Mercado Pago devolvió un error al crear la orden del pedido %s con estado HTTP %s y código %s",
             pedido["id"],
             codigo_respuesta,
+            codigo_error,
         )
-        detalle = orden.get("message") if isinstance(orden, dict) else None
+        if status_detail:
+            raise HTTPException(
+                status_code=402,
+                detail={
+                    "code": status_detail,
+                    "message": mensaje_rechazo_pago(status_detail),
+                },
+            )
         raise HTTPException(
             status_code=502,
-            detail=detalle or "MercadoPago rechazó la solicitud de orden",
+            detail={
+                "code": codigo_error,
+                "message": mensaje_error_api(codigo_error),
+            },
+        )
+    if isinstance(orden, dict) and orden.get("errors"):
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "code": codigo_error,
+                "message": mensaje_error_api(codigo_error),
+            },
         )
     if not isinstance(orden, dict) or not orden.get("id") or not orden.get("status"):
         logger.error("MercadoPago devolvió datos de orden incompletos para el pedido %s", pedido["id"])
         raise HTTPException(status_code=502, detail="Respuesta incompleta de MercadoPago")
-
     if orden["status"] == "processed":
         async with pool.acquire() as conn:
             await conn.execute(
@@ -212,11 +428,20 @@ async def crear_orden_endpoint(
                 "PAGADO",
             )
 
+    if orden["status"] == "canceled":
+        raise HTTPException(
+            status_code=402,
+            detail={
+                "code": status_detail,
+                "message": mensaje_rechazo_pago(status_detail),
+            },
+        )
+
     return {
         "id": orden["id"],
         "pedido_id": pedido["id"],
         "status": orden["status"],
-        "status_detail": orden.get("status_detail"),
+        "status_detail": status_detail,
         "total_amount": orden.get("total_amount", importe),
         "url": orden.get("url"),
     }

@@ -61,6 +61,16 @@ La API estará disponible en:
 - Consultar estado del pedido: `GET http://127.0.0.1:8000/v1/orders/{pedido_id}/status`
 - Webhook de Orders: `POST http://127.0.0.1:8000/v1/mercadopago/webhook`
 
+Si Mercado Pago rechaza el pago, `POST /v1/orders` consulta la orden por ID
+cuando está disponible y toma el motivo de
+`transactions.payments.status_detail`, como se describe en la referencia de
+[obtener orden por ID](https://www.mercadopago.com.mx/developers/es/reference/online-payments/checkout-api/get-order/get).
+La API responde con HTTP 402 y un `detail` que incluye el código y un mensaje
+traducido al español cuando existe `status_detail`; si no se creó una orden
+consultable, conserva el mensaje que devuelva la API. Si Mercado Pago no creó
+una orden, la API devuelve un error de integración y no cambia el estado local
+del pedido.
+
 En el panel de Mercado Pago, configura el evento **Order (Mercado Pago)** para
 apuntar al webhook y copia el secreto generado a `MERCADOPAGO_WEBHOOK_SECRET`.
 Para probar el webhook mientras el backend corre en localhost se necesita una
