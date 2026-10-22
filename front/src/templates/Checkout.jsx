@@ -151,6 +151,13 @@ function Checkout({ onPedidoCreado, onVolver }) {
                 }, claveIdempotencia.current);
 
                 if (resultadoOrden.status !== "processed") {
+                  if (resultadoOrden.status === "canceled") {
+                    setResultadoPendiente({
+                      ...resultadoOrden,
+                      pedido_id: pedido.id,
+                    });
+                    return;
+                  }
                   setResultadoPendiente({
                     ...resultadoOrden,
                     pedido_id: pedido.id,

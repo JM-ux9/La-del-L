@@ -1,0 +1,31 @@
+.aviso-pago {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(100% - 2rem, 48rem);
+  margin: 1rem auto;
+  padding: 0.85rem 1rem;
+  border: 1px solid;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 14px rgba(41, 35, 31, 0.12);
+  font-weight: 650;
+}
+
+.aviso-pago--exitoso {
+  border-color: #4d7736;
+  background: #edf7e7;
+  color: #294c20;
+}
+
+.aviso-pago-cerrar {
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0 0.2rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}

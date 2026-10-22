@@ -1,8 +1,10 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import AvisoPago from "../components/AvisoPago.jsx";
 import MisPedidos from "../components/MisPedidos.jsx";
 ---
 
 <BaseLayout titulo="Mis pedidos | Café del L">
+  <AvisoPago client:load />
   <MisPedidos client:only="react" />
 </BaseLayout>

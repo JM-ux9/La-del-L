@@ -11,7 +11,7 @@ function PaginaCheckout() {
     }, []);
 
     function pedidoCreado() {
-        window.location.href = "/";
+        window.location.href = "/mis-pedidos?pago=exitoso";
     }
 
     function volver() {

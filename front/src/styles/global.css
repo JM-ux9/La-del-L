@@ -149,6 +149,13 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   outline-offset: 2px;
 }
 
+.tituloDashboard {
+  font-size: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @media (max-width: 640px) {
 
   .categoria-page,
