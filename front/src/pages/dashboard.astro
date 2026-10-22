@@ -1,8 +1,10 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import AdminNav from "../components/AdminNav.astro";
 import PaginaDashboard from "../components/PaginaDashboard.jsx";
 ---
 
 <BaseLayout titulo="Dashboard | Café del L">
+  <AdminNav />
   <PaginaDashboard client:only="react" />
 </BaseLayout>
