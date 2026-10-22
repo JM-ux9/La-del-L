@@ -74,8 +74,23 @@ async def pedidos_by_cliente(info: strawberry.Info, id: int) -> List[Pedido]:
         )
         return [Pedido (**dict(r)) for r in rows]
 
+async def update_pedido(info: strawberry.Info, id: int, new_stat: str) -> bool:
+    pool = info.context["pool"]
+    async with pool.acquire() as conn:
+        row = await conn.execute("UPDATE pedido SET status = $1 WHERE id = $2", new_stat, id)
+
+    return True
+
 @strawberry.type
 class PedidoQueries:
+    @strawberry.field
+    async def pedidos_pendientes(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        async with pool.acquire as conn:
+            rows = await conn.fetch("SELECT * FROM pedido ORDER BY id LIMIT $1 OFFSET $2 WHERE status = 'PENDIENTE'", limite or 10, desde or 0)
+            return [Pedido (**dict(r)) for r in rows]
+
     @strawberry.field
     async def pedidos(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
         pool = info.context["pool"]
@@ -99,6 +114,9 @@ class PedidoQueries:
 
 @strawberry.type
 class PedidoMutations:
+    @strawberry.mutation
+    async def set_in_progress(self, info: strawberry.Info, id: int) -> bool:
+
     @strawberry.mutation
     async def crear_pedido(self, info: strawberry.Info, datos: PedidoInput) -> Pedido:
         pool = info.context["pool"]
