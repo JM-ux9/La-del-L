@@ -117,7 +117,7 @@ function PaginaDashboard() {
 
   return (
     <section className="pagina-dashboard">
-      <a className="dashboard-back" href="/">
+      <a className="dashboard-back" href="/" style={{marginLeft: "1rem"}}>
         ← Volver
       </a>
       <h2 className="tituloDashboard">Dashboard</h2>

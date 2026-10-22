@@ -32,3 +32,14 @@ def decodificar_token(token: str) -> dict | None:
         return payload
     except JWTError:
         return None
+
+def usuario_desde_header(authorization: str | None) -> tuple[dict | None, bool]:
+    """Devuelve (usuario, token_expirado). Solo acepta access tokens."""
+    if not authorization or not authorization.startswith("Bearer "):
+        return None, False
+    payload = decodificar_token(authorization.removeprefix("Bearer "))
+    if payload is None:
+        return None, True
+    if payload.get("tipo") != "access" or not payload.get("usuario_id"):
+        return None, False
+    return payload, False
