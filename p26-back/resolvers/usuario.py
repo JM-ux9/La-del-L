@@ -12,11 +12,11 @@ from jwt_service import (
 import asyncpg
 from datetime import datetime, timedelta, timezone
 
-from auth import requerir_admin
+from auth import requerir_admin, requerir_usuario
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
-PASSWORD_MINIMO = 6
+PASSWORD_MINIMO = 8
 
 class RolEnum(Enum):
     ADMIN = "ADMIN"
@@ -76,7 +76,6 @@ class UsuarioQueries:
             row = await conn.fetchrow("SELECT id, nombre, email, rol FROM usuario WHERE id = $1;", id)
 
         return Usuario(**(dict(row) | {"password": ""})) if row else None
-
 
 @strawberry.type
 class UsuarioMutations:
@@ -195,5 +194,46 @@ class UsuarioMutations:
                 raise Exception("Refresh Token Inválido")
 
             await conn.execute("UPDATE refresh_tokens SET usado = TRUE WHERE jti = $1", jti)
+
+        return True
+
+    @strawberry.mutation
+    async def update_usuario(self, info: strawberry.Info, name: str) -> bool:
+        pool = info.context["pool"]
+        usuario = requerir_usuario(info)
+
+        async with pool.acquire() as conn:
+            row = await conn.execute("UPDATE usuario SET nombre = $1 WHERE id = $2;", name, usuario["usuario_id"])
+
+        return True
+
+    @strawberry.mutation
+    async def reset_password(self, info: strawberry.Info, pswd: str, new_pswd: str) -> bool:
+        pool = info.context["pool"]
+
+        try:
+            usuario = requerir_usuario(info)
+
+            async with pool.acquire() as conn:
+                row = await conn.fetchrow("SELECT * FROM usuario WHERE email = $1", usuario["email"])
+                if row is None or not pwd_context.verify(pswd, row["password"]):
+                    raise Exception("Credenciales inválidas")
+                    return False
+                
+                hashed = pwd_context.hash(new_pswd)
+                row = await conn.execute("UPDATE usuario SET password = $1 WHERE id = $2", hashed, usuario["usuario_id"])
+                
+            return True
+        except:
+            return False
+
+    @strawberry.mutation
+    async def ascend_user(self, info: strawberry.Info, id: int) -> bool:
+        pool = info.context["pool"]
+
+        requerir_admin(info)
+        
+        async with pool.acquire() as conn:
+            row = await conn.execute("UPDATE usuario SET rol = 'ADMIN' WHERE id = $1", id)
 
         return True

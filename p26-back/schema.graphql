@@ -38,6 +38,9 @@ type Mutation {
   login(datos: LoginInput!): AuthPayload!
   refrescarToken(refreshToken: String!): RefreshPayload!
   logout(refreshToken: String!): Boolean!
+  updateUsuario(name: String!): Boolean!
+  resetPassword(pswd: String!, newPswd: String!): Boolean!
+  ascendUser(id: Int!): Boolean!
 }
 
 type Pedido {
@@ -88,6 +91,8 @@ type Query {
   productosMasVendidos(limite: Int = null): [ProductoVendido!]!
   ventasSemana: [VentaDia!]!
   categoriasMasVendidas: [CategoriaVendida!]!
+  listarUsuarios: [Usuario!]!
+  userById(id: Int!): Usuario
 }
 
 type RefreshPayload {
