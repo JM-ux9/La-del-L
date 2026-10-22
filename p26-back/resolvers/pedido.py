@@ -116,6 +116,27 @@ class PedidoQueries:
 class PedidoMutations:
     @strawberry.mutation
     async def set_in_progress(self, info: strawberry.Info, id: int) -> bool:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        return await update_pedido(info, id, "EN PROCESO")
+
+    @strawberry.mutation
+    async def set_ready(self, info: strawberry.Info, id: int) -> bool:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        return await update_pedido(info, id, "LISTO")
+
+    @strawberry.mutation
+    async def set_delivered(self, info: strawberry.Info, id: int) -> bool:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        return await update_pedido(info, id, "ENTREGADO")
+
+    @strawberry.mutation
+    async def set_canceled(self, info: strawberry.Info, id: int) -> bool:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        return await update_pedido(info, id, "CANCELADO")
 
     @strawberry.mutation
     async def crear_pedido(self, info: strawberry.Info, datos: PedidoInput) -> Pedido:
