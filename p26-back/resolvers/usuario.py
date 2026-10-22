@@ -237,3 +237,46 @@ class UsuarioMutations:
             row = await conn.execute("UPDATE usuario SET rol = 'ADMIN' WHERE id = $1", id)
 
         return True
+
+    @strawberry.mutation
+    async def actualizar_nombre_usuario(self, info: strawberry.Info, id: int, nombre: str) -> bool:
+        pool = info.context["pool"]
+        requerir_admin(info)
+
+        nombre = nombre.strip()
+        if not nombre:
+            raise Exception("El nombre es obligatorio")
+
+        async with pool.acquire() as conn:
+            row = await conn.execute("UPDATE usuario SET nombre = $1 WHERE id = $2;", nombre, id)
+
+        return True
+
+    @strawberry.mutation
+    async def eliminar_usuario(self, info: strawberry.Info, id: int) -> bool:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        usuario = requerir_usuario(info)
+
+        if usuario["usuario_id"] == id:
+            raise Exception("No puedes eliminar tu propia cuenta")
+
+        async with pool.acquire() as conn:
+            await conn.execute("DELETE FROM refresh_tokens WHERE usuario_id = $1", id)
+            row = await conn.execute("DELETE FROM usuario WHERE id = $1", id)
+
+        return True
+
+    @strawberry.mutation
+    async def descend_user(self, info: strawberry.Info, id: int) -> bool:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        usuario = requerir_usuario(info)
+
+        if usuario["usuario_id"] == id:
+            raise Exception("No puedes quitarte el rol de administrador")
+
+        async with pool.acquire() as conn:
+            row = await conn.execute("UPDATE usuario SET rol = 'CLIENTE' WHERE id = $1", id)
+
+        return True
