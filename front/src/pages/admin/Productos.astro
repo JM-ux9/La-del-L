@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AdminNav from "../../components/AdminNav.astro";
+import PaginaAdminProductos from "../../components/PaginaAdminProductos.jsx";
+---
+
+<BaseLayout titulo="Admin: Productos | Café del L">
+  <AdminNav />
+  <PaginaAdminProductos client:only="react" />
+</BaseLayout>

@@ -1,0 +1,87 @@
+.admin-nav {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.admin-nav a {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: #3D2314;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.admin-pagina {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 2rem 2rem;
+}
+
+.admin-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  background: white;
+  color: #29231f;
+}
+
+.admin-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.admin-form input,
+.admin-form select {
+  padding: 0.4rem;
+}
+
+.admin-tabla-contenedor {
+  overflow-x: auto;
+}
+
+.admin-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  color: #29231f;
+  border-radius: 8px;
+}
+
+.admin-tabla th,
+.admin-tabla td {
+  padding: 0.6rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.admin-tabla img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.admin-acciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-peligro {
+  background: #8a1c1c;
+  color: white;
+}
+
+.admin-error {
+  color: #8a1c1c;
+  font-weight: 600;
+}
