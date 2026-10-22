@@ -1,0 +1,15 @@
+---
+import type { Usuarios } from "../pages/admin/Usuarios.astro";
+import BotonAgregarUsuario from "./BotonAgregarUsuario.jsx";
+import "./UsuarioCard.css";
+
+const { usuario } = Astro.props;
+---
+
+<div class="usuario-card">
+  <a href={`/users/${usuario.id}`}>
+    <h3>{usuario.nombre}</h3>
+    <p>{usuario.email}</p>
+  </a>
+  <BotonAgregarUsuario client:load />
+</div>
