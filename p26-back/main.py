@@ -4,6 +4,12 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 
+from strawberry.subscriptions import (
+    GRAPHQL_SSE_PROTOCOL,
+    GRAPHQL_TRANSPORT_WS_PROTOCOL,
+    GRAPHQL_WS_PROTOCOL,
+)
+
 from db import create_pool
 from jwt_service import usuario_desde_header
 from routers.pagos import router as pagos_router
@@ -36,5 +42,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+graphql_router = GraphQLRouter(
+    schema,
+    subscription_protocols=[
+        GRAPHQL_TRANSPORT_WS_PROTOCOL,
+        GRAPHQL_WS_PROTOCOL,
+        GRAPHQL_SSE_PROTOCOL,
+    ],
+    context_getter=get_context
+)
+
 app.include_router(pagos_router)
-app.include_router(GraphQLRouter(schema, context_getter=get_context), prefix="/graphql")
+app.include_router(graphql_router, prefix="/graphql")
