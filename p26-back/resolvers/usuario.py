@@ -1,5 +1,5 @@
 import strawberry
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 from passlib.context import CryptContext
 from email_validator import validate_email, EmailNotValidError
@@ -11,6 +11,8 @@ from jwt_service import (
 )
 import asyncpg
 from datetime import datetime, timedelta, timezone
+
+from auth import requerir_admin
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
@@ -51,6 +53,29 @@ class LoginInput:
 class RefreshPayload:
     access_token: str
     refresh_token: str
+
+
+@strawberry.type
+class UsuarioQueries:
+    @strawberry.field
+    async def listar_usuarios(self, info: strawberry.Info) -> List[Usuario]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("SELECT id, nombre, email, rol FROM usuario;")
+
+        return [Usuario(**(dict(r) | {"password": ""})) for r in rows]
+
+    @strawberry.field
+    async def user_by_id(self, info: strawberry.Info, id: int) -> Optional[Usuario]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow("SELECT id, nombre, email, rol FROM usuario WHERE id = $1;", id)
+
+        return Usuario(**(dict(row) | {"password": ""})) if row else None
 
 
 @strawberry.type

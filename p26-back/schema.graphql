@@ -10,6 +10,13 @@ type Categoria {
   productos: [Producto!]!
 }
 
+type CategoriaVendida {
+  categoriaId: Int!
+  nombre: String!
+  cantidadVendida: Int!
+  totalVendido: Float!
+}
+
 type DetallePedido {
   id: Int!
   cantidad: Int!
@@ -63,6 +70,13 @@ input ProductoInput {
   disponible: Boolean = null
 }
 
+type ProductoVendido {
+  productoId: Int!
+  nombre: String!
+  cantidadVendida: Int!
+  totalVendido: Float!
+}
+
 type Query {
   productos(limite: Int = null, desde: Int = null): [Producto!]!
   producto(id: Int!): Producto
@@ -71,6 +85,9 @@ type Query {
   pedidos(limite: Int = null, desde: Int = null): [Pedido!]!
   misPedidos: [Pedido!]!
   pedidosByClienteId(id: Int!): [Pedido!]!
+  productosMasVendidos(limite: Int = null): [ProductoVendido!]!
+  ventasSemana: [VentaDia!]!
+  categoriasMasVendidas: [CategoriaVendida!]!
 }
 
 type RefreshPayload {
@@ -99,4 +116,10 @@ input UsuarioInput {
   nombre: String!
   email: String!
   password: String!
+}
+
+type VentaDia {
+  fecha: String!
+  total: Float!
+  pedidos: Int!
 }
