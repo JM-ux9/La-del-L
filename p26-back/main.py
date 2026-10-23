@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 
@@ -23,9 +23,32 @@ async def lifespan(app: FastAPI):
     await app.state.pool.close()
 
 
-async def get_context(request: Request):
-    usuario, token_expirado = usuario_desde_header(request.headers.get("Authorization"))
-    return {"pool": request.app.state.pool, "usuario": usuario, "token_expirado": token_expirado}
+async def get_context(
+    request: Request = None,
+    ws: WebSocket = None,
+):
+    auth_header = None
+    pool = None
+
+    if request is not None:
+        # Peticiones HTTP (Queries, Mutations y subscriptions por SSE)
+        auth_header = request.headers.get("Authorization")
+        pool = request.app.state.pool
+    elif ws is not None:
+        # WebSocket (subscriptions): aqui todavia NO llega el token.
+        # Llega despues en el mensaje connection_init y Strawberry lo pone en
+        # context["connection_params"]; auth.py lo lee de ahi al validar.
+        pool = ws.app.state.pool
+
+    usuario, token_expirado = usuario_desde_header(auth_header)
+
+    return {
+        "pool": pool,
+        "usuario": usuario,
+        "token_expirado": token_expirado,
+        "request": request,
+        "ws": ws,
+    }
 
 
 app = FastAPI(lifespan=lifespan)
@@ -49,7 +72,7 @@ graphql_router = GraphQLRouter(
         GRAPHQL_WS_PROTOCOL,
         GRAPHQL_SSE_PROTOCOL,
     ],
-    context_getter=get_context
+    context_getter=get_context,
 )
 
 app.include_router(pagos_router)

@@ -33,6 +33,10 @@ type Mutation {
   crearProducto(datos: ProductoInput!): Producto!
   actualizarProducto(id: Int!, datos: ProductoInput!): Producto
   eliminarProducto(id: Int!): Boolean!
+  setInProgress(id: Int!): Boolean!
+  setReady(id: Int!): Boolean!
+  setDelivered(id: Int!): Boolean!
+  setCanceled(id: Int!): Boolean!
   crearPedido(datos: PedidoInput!): Pedido!
   crearUsuario(datos: UsuarioInput!): Usuario
   login(datos: LoginInput!): AuthPayload!
@@ -41,6 +45,9 @@ type Mutation {
   updateUsuario(name: String!): Boolean!
   resetPassword(pswd: String!, newPswd: String!): Boolean!
   ascendUser(id: Int!): Boolean!
+  actualizarNombreUsuario(id: Int!, nombre: String!): Boolean!
+  eliminarUsuario(id: Int!): Boolean!
+  descendUser(id: Int!): Boolean!
 }
 
 type Pedido {
@@ -85,11 +92,16 @@ type Query {
   producto(id: Int!): Producto
   categorias: [Categoria!]!
   categoria(id: Int!): Categoria
+  pedidosPendientes(limite: Int = null, desde: Int = null): [Pedido!]!
   pedidos(limite: Int = null, desde: Int = null): [Pedido!]!
   misPedidos: [Pedido!]!
   pedidosByClienteId(id: Int!): [Pedido!]!
   productosMasVendidos(limite: Int = null): [ProductoVendido!]!
   ventasSemana: [VentaDia!]!
+  ventasMes: [VentaDia!]!
+  ventas5Dias: [VentaDia!]!
+  avgWeek: Float!
+  avgMonth: Float!
   categoriasMasVendidas: [CategoriaVendida!]!
   listarUsuarios: [Usuario!]!
   userById(id: Int!): Usuario
@@ -108,6 +120,12 @@ input RenglonInput {
 enum RolEnum {
   ADMIN
   CLIENTE
+}
+
+type Subscription {
+  pedidosEnVivo: Pedido!
+  pedidoActualizado(pedidoId: Int!): Pedido!
+  nuevoPedidoCreado: Pedido!
 }
 
 type Usuario {

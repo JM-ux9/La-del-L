@@ -1,4 +1,5 @@
 import logging
+import eventos
 import os
 from decimal import Decimal, InvalidOperation
 from typing import Annotated, Literal
@@ -21,7 +22,6 @@ webhook_secret = os.getenv("MERCADOPAGO_WEBHOOK_SECRET")
 _access_token = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
 sdk = mercadopago.SDK(_access_token) if _access_token else None
 
-# ---------------------------------------------------------------- mensajes
 
 RECHAZADOS = {"failed", "canceled"}
 ESTADO_LOCAL = {"processed": "PAGADO", "failed": "RECHAZADO", "canceled": "RECHAZADO"}
@@ -55,7 +55,6 @@ MENSAJES_ERROR_API = {
     "internal_error": "Mercado Pago tuvo un problema temporal. Inténtalo de nuevo en unos minutos.",
 }
 
-# ------------------------------------------------------------------ modelos
 
 
 class _Modelo(BaseModel):
@@ -153,8 +152,10 @@ async def _marcar_pedido(pool, pedido_id: int, estado: str) -> None:
             pedido_id,
         )
 
+    eventos.publicar(eventos.canal_pedido(pedido_id), pedido_id)
+    eventos.publicar(eventos.CANAL_PEDIDOS, pedido_id)
 
-# --------------------------------------------------------------- endpoints
+
 
 
 @router.post("/orders")
@@ -213,7 +214,6 @@ async def crear_orden_endpoint(
     http, orden, codigo_error = _interpretar(resultado)
     detalle = _detalle_rechazo(orden)
 
-    # Rechazo de pago: HTTP 402, order failed/canceled o un pago con status_detail de rechazo.
     if detalle or http == 402 or orden.get("status") in RECHAZADOS:
         await _marcar_pedido(pool, pedido["id"], "RECHAZADO")
         raise HTTPException(
@@ -224,7 +224,6 @@ async def crear_orden_endpoint(
             },
         )
 
-    # Error de la API (400, 409, 423, 5xx) o respuesta incompleta.
     if not 200 <= http < 300 or not orden.get("id") or not orden.get("status"):
         logger.warning(
             "MercadoPago respondió HTTP %s (código %s) para el pedido %s",

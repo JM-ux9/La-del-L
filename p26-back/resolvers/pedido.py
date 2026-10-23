@@ -1,3 +1,4 @@
+import eventos
 import strawberry
 from typing import Annotated, List, Optional, TYPE_CHECKING
 from auth import requerir_usuario, requerir_admin
@@ -77,8 +78,10 @@ async def pedidos_by_cliente(info: strawberry.Info, id: int) -> List[Pedido]:
 async def update_pedido(info: strawberry.Info, id: int, new_stat: str) -> bool:
     pool = info.context["pool"]
     async with pool.acquire() as conn:
-        row = await conn.execute("UPDATE pedido SET status = $1 WHERE id = $2", new_stat, id)
+        await conn.execute("UPDATE pedido SET status = $1 WHERE id = $2", new_stat, id)
 
+    eventos.publicar(eventos.canal_pedido(id), id)
+    eventos.publicar(eventos.CANAL_PEDIDOS, id)
     return True
 
 @strawberry.type
@@ -181,5 +184,9 @@ class PedidoMutations:
                         "INSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, importe) VALUES ($1, $2, $3, $4)",
                         pedido_row["id"], r.producto_id, r.cantidad, importe
                     )
+
+        nuevo_pedido_id = pedido_row["id"]
+        eventos.publicar(eventos.CANAL_PEDIDOS, nuevo_pedido_id)
+        eventos.publicar(eventos.canal_pedido(nuevo_pedido_id), nuevo_pedido_id)
 
         return Pedido(**dict(pedido_row))
