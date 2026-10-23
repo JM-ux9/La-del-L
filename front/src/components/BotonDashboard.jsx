@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+
+
 const ICONO_DASHBOARD = (
   <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="#ffffff">
     <g id="SVGRepo_bgCarrier" strokeWidth={0} />
@@ -27,7 +30,12 @@ function leerUsuario() {
 }
 
 function BotonDashboard() {
-  const usuario = leerUsuario();
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    setUsuario(leerUsuario());
+  }, []);
+
   if (!usuario || usuario.rol !== "ADMIN") {
     return null;
   }

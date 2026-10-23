@@ -74,8 +74,12 @@ export const useCarrito = create((set, get) => ({
 }));
 
 useCarrito.subscribe((estado) => {
+  if (typeof localStorage === "undefined") return;
   const clave = claveCarrito();
   if (estado.cargado && clave) {
-    localStorage.setItem(clave, JSON.stringify(estado.items));
+    try {
+      localStorage.setItem(clave, JSON.stringify(estado.items));
+    } catch (e) {
+    }
   }
 });

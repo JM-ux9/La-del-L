@@ -94,7 +94,7 @@ async def update_pedido(info: strawberry.Info, id: int, new_stat: str) -> bool:
 @strawberry.type
 class PedidoQueries:
     @strawberry.field
-    async def pedidos_pendientes(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
+    async def pedidos_pagados(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
         pool = info.context["pool"]
         requerir_admin(info)
         async with pool.acquire() as conn:
@@ -102,7 +102,7 @@ class PedidoQueries:
                 "SELECT id, "
                 "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
                 "total, status, usuario_id "
-                "FROM pedido WHERE status = 'PENDIENTE' "
+                "FROM pedido WHERE status = 'PAGADO' "
                 "ORDER BY id DESC LIMIT $1 OFFSET $2",
                 limite or 10, desde or 0,
             )

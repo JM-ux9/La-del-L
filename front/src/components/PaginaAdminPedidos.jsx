@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { fetchGraphQL } from "../services/api";
+import { suscribirPedidosEnVivo } from "../services/suscripciones";
 const QUERY_DATOS = `
   query {
-    pedidosPendientes(limite: 100) {
+    pedidosPagados(limite: 100) {
       id
       fecha
       total
@@ -67,7 +68,7 @@ function PaginaAdminPedidos() {
     setError(null);
     try {
       const data = await fetchGraphQL(QUERY_DATOS);
-      setPedidos(data.pedidosPendientes);
+      setPedidos(data.pedidosPagados);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -79,9 +80,35 @@ function PaginaAdminPedidos() {
     const usuario = leerUsuario();
     if (!usuario || usuario.rol !== "ADMIN") {
       window.location.href = "/";
-    } else {
-      cargarDatos();
+      return;
     }
+
+    let cancelar;
+
+    (async () => {
+      await cargarDatos();
+      cancelar = suscribirPedidosEnVivo((pedido) => {
+        setPedidos((prev) => {
+          if (pedido.status !== "PAGADO") {
+            return prev.filter((p) => p.id !== pedido.id);
+          }
+          const idx = prev.findIndex((p) => p.id === pedido.id);
+          if (idx >= 0) {
+            const siguiente = [...prev];
+            siguiente[idx] = pedido;
+            return siguiente;
+          }
+          return [pedido, ...prev];
+        });
+      }, (err) => {
+        console.error('Error subscription:', err);
+        setError(err?.message || 'Error en tiempo real');
+      });
+    })();
+
+    return () => {
+      if (cancelar) cancelar();
+    };
   }, []);
 
   function verDetalle(pedido) {
@@ -145,7 +172,7 @@ function PaginaAdminPedidos() {
   if (cargando) {
     contenido = <p>Cargando pedidos...</p>;
   } else if (pedidos.length === 0) {
-    contenido = <p>No hay pedidos en pendientes.</p>;
+    contenido = <p>No hay pedidos pagados.</p>;
   } else {
     contenido = (
       <div className="admin-tabla-contenedor">
@@ -188,7 +215,7 @@ function PaginaAdminPedidos() {
     <section className="admin-pagina">
       {error && <p className="admin-error">Error: {error}</p>}
 
-      <h2>Pedidos pendientes</h2>
+      <h2>Pedidos pagados</h2>
       {contenido}
 
       {pedidoAbierto && (

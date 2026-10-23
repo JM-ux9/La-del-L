@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchGraphQL } from "../services/api";
+import { suscribirMisPedidosActivos } from "../services/suscripciones";
 import "./MisPedidos.css";
 
 const QUERY_MIS_PEDIDOS = `
@@ -38,7 +39,32 @@ function MisPedidos() {
   }
 
   useEffect(() => {
-    cargarPedidos();
+    let cancelar;
+
+    (async () => {
+      await cargarPedidos();
+      cancelar = suscribirMisPedidosActivos((pedido) => {
+        setPedidos((prev) => {
+          const excluidos = new Set(["CANCELADO", "ENTREGADO", "RECHAZADO"]);
+          if (excluidos.has(pedido.status)) {
+            return prev.filter((p) => p.id !== pedido.id);
+          }
+          const idx = prev.findIndex((p) => p.id === pedido.id);
+          if (idx >= 0) {
+            const siguiente = [...prev];
+            siguiente[idx] = pedido;
+            return siguiente;
+          }
+          return [pedido, ...prev];
+        });
+      }, (err) => {
+        setError(err?.message || "Error en tiempo real");
+      });
+    })();
+
+    return () => {
+      if (cancelar) cancelar();
+    };
   }, []);
 
   let contenido;

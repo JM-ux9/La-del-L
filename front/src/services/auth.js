@@ -4,6 +4,7 @@ const CARRITO_GLOBAL = "carrito";
 
 function leerUsuario() {
   try {
+    if (typeof localStorage === "undefined") return null;
     return JSON.parse(localStorage.getItem("usuario") || "null");
   } catch (e) {
     return null;
@@ -22,6 +23,7 @@ export function guardarSesion(login) {
 }
 
 export function obtenerToken() {
+  if (typeof localStorage === "undefined") return null;
   return localStorage.getItem("access_token");
 }
 
@@ -41,6 +43,7 @@ export function sesionValida() {
 
 export function cerrarSesion() {
   const clave = claveCarrito();
+  if (typeof localStorage === "undefined") return;
   if (clave) {
     localStorage.removeItem(clave);
   }
