@@ -1,0 +1,13 @@
+---
+import type { Pedidos } from "../pages/admin/pedidos.astro";
+import "./PedidoCard.css";
+
+const { pedido } = Astro.props;
+---
+
+<div class="pedido-card">
+  <a href={`/pedidos/${pedido.id}`}>
+    <h3>{pedido.nombre}</h3>
+    <p>{pedido.email}</p>
+  </a>
+</div>

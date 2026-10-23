@@ -87,8 +87,30 @@ class PedidoQueries:
     async def pedidos_pendientes(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
         pool = info.context["pool"]
         requerir_admin(info)
-        async with pool.acquire as conn:
-            rows = await conn.fetch("SELECT * FROM pedido ORDER BY id LIMIT $1 OFFSET $2 WHERE status = 'PENDIENTE'", limite or 10, desde or 0)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, "
+                "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                "total, status, usuario_id "
+                "FROM pedido WHERE status = 'PENDIENTE' "
+                "ORDER BY id DESC LIMIT $1 OFFSET $2",
+                limite or 10, desde or 0,
+            )
+            return [Pedido (**dict(r)) for r in rows]
+        
+    @strawberry.field
+    async def pedidos_en_proceso(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, "
+                "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                "total, status, usuario_id "
+                "FROM pedido WHERE status = 'EN PROCESO' "
+                "ORDER BY id DESC LIMIT $1 OFFSET $2",
+                limite or 10, desde or 0,
+            )
             return [Pedido (**dict(r)) for r in rows]
 
     @strawberry.field
@@ -96,7 +118,14 @@ class PedidoQueries:
         pool = info.context["pool"]
         requerir_admin(info)
         async with pool.acquire() as conn:
-            rows = await conn.fetch("SELECT * FROM pedido ORDER BY id LIMIT $1 OFFSET $2", limite or 10, desde or 0)
+            rows = await conn.fetch(
+                "SELECT id, "
+                "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                "total, status, usuario_id "
+                "FROM pedido "
+                "ORDER BY id DESC LIMIT $1 OFFSET $2",
+                limite or 10, desde or 0,
+            )
             return [Pedido (**dict(r)) for r in rows]
 
     @strawberry.field
@@ -154,7 +183,7 @@ class PedidoMutations:
             async with conn.transaction():
                 producto_ids = list({r.producto_id for r in datos.renglones})
                 productos_rows = await conn.fetch(
-                    "SELECT id, precio, disponible FROM producto WHERE id = ANY($1::int[])", producto_ids
+                    "SELECT id, nombre, precio, disponible FROM producto WHERE id = ANY($1::int[])", producto_ids
                 )
                 productos = {row["id"]: row for row in productos_rows}
 
