@@ -171,3 +171,43 @@ button:hover{
 .topbar-dashboard:hover svg {
   transform: translateX(2px);
 }
+
+.topbar-perfil {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  transform: none;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.topbar-perfil:hover {
+  background: rgba(255, 248, 231, 0.16);
+  transform: none;
+}
+
+.topbar-perfil:active {
+  background: rgba(255, 248, 231, 0.26);
+}
+
+.topbar-perfil:focus-visible {
+  outline: 2px solid #FFF8E7;
+  outline-offset: 2px;
+}
+
+.topbar-perfil svg {
+  width: 1.30rem;
+  height: 1.30rem;
+  display: block;
+  transition: transform 0.18s ease;
+}
+
+.topbar-perfil:hover svg {
+  transform: translateX(2px);
+}

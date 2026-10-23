@@ -2,8 +2,9 @@ import { create } from "zustand";
 import { claveCarrito } from "../services/auth";
 
 export function calcularTotal(items) {
+  if (!Array.isArray(items)) return 0;
   return items.reduce(
-    (acc, item) => acc + Number(item.producto.precio) * item.cantidad,
+    (acc, item) => acc + (Number(item?.producto?.precio) || 0) * (Number(item?.cantidad) || 0),
     0
   );
 }
@@ -17,8 +18,20 @@ export const useCarrito = create((set, get) => ({
       return;
     }
     const clave = claveCarrito();
-    const guardado = clave ? localStorage.getItem(clave) : null;
-    set({ items: guardado ? JSON.parse(guardado) : [], cargado: true });
+    let guardado = null;
+    try {
+        guardado = clave ? localStorage.getItem(clave) : null;
+    } catch (e) {
+        guardado = null;
+    }
+    let items = [];
+    try {
+        items = guardado ? JSON.parse(guardado) : [];
+        if (!Array.isArray(items)) items = [];
+    } catch (e) {
+        items = [];
+    }
+    set({ items, cargado: true });
   },
 
   agregarAlCarrito(producto, cantidad) {

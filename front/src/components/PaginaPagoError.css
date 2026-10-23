@@ -1,0 +1,87 @@
+.pago-error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 1.5rem;
+}
+
+.pago-error-panel {
+  width: min(520px, 100%);
+  padding: clamp(2rem, 5vw, 3rem);
+  border-radius: 12px;
+  background: #fffdf8;
+  box-shadow: 0 12px 35px rgba(74, 43, 30, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pago-error-titulo {
+  color: #9b3d2c;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  line-height: 1.1;
+  margin: 0;
+}
+
+.pago-error-mensaje {
+  color: #1a1a2e;
+  font-size: 1.1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.pago-error-actions {
+  display: flex;
+  gap: 1.5rem;
+  flex-direction: column;
+  margin-top: 1rem;
+  align-items: center;
+}
+
+.pago-error-volver,
+.pago-error-inicio {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.9rem 1.2rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.pago-error-volver {
+  background: #002169;
+  color: #fff;
+}
+
+.pago-error-volver:hover {
+  background: #002169cc;
+}
+
+.pago-error-inicio {
+  background: #fff;
+  color: #5c5b2b;
+  border: 1px solid #d9c9bc;
+}
+
+.pago-error-inicio:hover {
+  background: #f5f1e8;
+}
+
+@media (min-width: 640px) {
+  .pago-error-actions {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .pago-error-volver,
+  .pago-error-inicio {
+    width: auto;
+    min-width: 160px;
+  }
+}

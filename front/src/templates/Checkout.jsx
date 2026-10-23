@@ -20,7 +20,18 @@ const MUTATION_CREAR_PEDIDO = `
 
 function Checkout({ onPedidoCreado, onVolver }) {
   const { items, vaciarCarrito } = useCarrito();
-  const total = calcularTotal(items);
+  const carritoItems = Array.isArray(items)
+    ? items.filter(
+        (item) =>
+          item &&
+          item.producto &&
+          item.producto.id != null &&
+          item.producto.nombre &&
+          Number.isFinite(Number(item.producto.precio)) &&
+          Number(item.cantidad) > 0
+      )
+    : [];
+  const total = calcularTotal(carritoItems);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [mercadoPago, setMercadoPago] = useState(null);
@@ -109,7 +120,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
 
                 let pedido = pedidoPendiente.current;
                 if (!pedido) {
-                  const renglones = items.map((item) => ({
+                  const renglones = carritoItems.map((item) => ({
                     productoId: item.producto.id,
                     cantidad: item.cantidad,
                   }));
@@ -151,17 +162,11 @@ function Checkout({ onPedidoCreado, onVolver }) {
                 }, claveIdempotencia.current);
 
                 if (resultadoOrden.status !== "processed") {
-                  if (resultadoOrden.status === "canceled") {
-                    setResultadoPendiente({
-                      ...resultadoOrden,
-                      pedido_id: pedido.id,
-                    });
-                    return;
-                  }
-                  setResultadoPendiente({
-                    ...resultadoOrden,
-                    pedido_id: pedido.id,
-                  });
+                  const mensaje =
+                    resultadoOrden.status === "canceled"
+                      ? "El pago fue cancelado."
+                      : `Estado de pago: ${resultadoOrden.status}`;
+                  window.location.href = `/pago-error?error=${encodeURIComponent(mensaje)}&tipo=${resultadoOrden.status}&pedido_id=${pedido.id}`;
                   return;
                 }
 
@@ -171,7 +176,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
                 pagoIniciadoRef.current = false;
                 const mensaje = err instanceof Error ? err.message : "Error desconocido al procesar el pago.";
                 console.error("No se pudo procesar el pago del Checkout:", err);
-                setError(mensaje);
+                window.location.href = `/pago-error?error=${encodeURIComponent(mensaje)}&tipo=orden`;
                 throw err;
               } finally {
                 enviandoRef.current = false;
@@ -181,10 +186,10 @@ function Checkout({ onPedidoCreado, onVolver }) {
             onError: (err) => {
               console.error("Error en el formulario de pago de MercadoPago:", err);
               if (activo) {
-                setError(
+                const mensaje =
                   err?.message ||
-                  (typeof err === "string" ? err : "Ocurrió un error en el formulario de pago.")
-                );
+                  (typeof err === "string" ? err : "Ocurrió un error en el formulario de pago.");
+                window.location.href = `/pago-error?error=${encodeURIComponent(mensaje)}&tipo=brick`;
               }
             },
           },
@@ -281,7 +286,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
         <h2>Confirma tu pedido</h2>
 
         <div className="checkout-items">
-          {items.map((item) => (
+          {carritoItems.map((item) => (
             <div className="checkout-item" key={item.producto.id}>
               <span>{item.producto.nombre}</span>
               <span>x{item.cantidad}</span>
@@ -297,7 +302,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
         <button
           className="checkout-submit"
           onClick={() => setModalAbierto(true)}
-          disabled={items.length === 0}
+          disabled={!carritoItems || carritoItems.length === 0}
         >
           Pagar
         </button>

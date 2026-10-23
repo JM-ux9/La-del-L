@@ -224,8 +224,8 @@ class UsuarioMutations:
                 row = await conn.execute("UPDATE usuario SET password = $1 WHERE id = $2", hashed, usuario["usuario_id"])
                 
             return True
-        except:
-            return False
+        except Exception as e:
+            raise Exception(str(e))
 
     @strawberry.mutation
     async def ascend_user(self, info: strawberry.Info, id: int) -> bool:

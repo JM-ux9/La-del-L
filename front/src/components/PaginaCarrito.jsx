@@ -10,7 +10,7 @@ function PaginaCarrito() {
   }, []);
 
   function finalizarCompra() {
-    window.location.href = "/checkout";
+    window.location.href = "/checkout/";
   }
 
   function volver() {

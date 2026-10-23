@@ -7,7 +7,11 @@ function PaginaCheckout() {
     const cargarCarrito = useCarrito((estado) => estado.cargarCarrito);
 
     useEffect(() => {
-        cargarCarrito();
+        try {
+            cargarCarrito();
+        } catch (e) {
+            console.error("Error al cargar el carrito:", e);
+        }
     }, []);
 
     function pedidoCreado() {

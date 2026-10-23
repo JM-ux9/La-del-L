@@ -2,6 +2,7 @@
 import ContadorCarrito from "./ContadorCarrito.jsx";
 import BotonCerrarSesion from "./BotonCerrarSesion.jsx";
 import BotonDashboard from "./BotonDashboard.jsx";
+import BotonPerfil from "./BotonPerfil.jsx";
 import "./TopBar.css";
 ---
 
@@ -19,6 +20,7 @@ import "./TopBar.css";
     <div class="topbar-busqueda">
       <input type="text" placeholder="Buscar productos..." id="busqueda" />
     </div>
+    <BotonPerfil client:load />
     <BotonDashboard client:load />
     <BotonCerrarSesion client:load />
     <a href="/">

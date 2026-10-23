@@ -3,9 +3,20 @@ import "./Carrito.css";
 
 function Carrito({ onFinalizarCompra, onVolver }) {
   const { items, quitarDelCarrito, cambiarCantidad } = useCarrito();
-  const total = calcularTotal(items);
+  const carritoItems = Array.isArray(items)
+    ? items.filter(
+        (item) =>
+          item &&
+          item.producto &&
+          item.producto.id != null &&
+          item.producto.nombre &&
+          Number.isFinite(Number(item.producto.precio)) &&
+          Number(item.cantidad) > 0
+      )
+    : [];
+  const total = calcularTotal(carritoItems);
 
-  if (items.length === 0) {
+  if (carritoItems.length === 0) {
     return (
       <div className="carrito-page">
         <button className="carrito-back" onClick={onVolver}>← Volver</button>
@@ -26,7 +37,7 @@ function Carrito({ onFinalizarCompra, onVolver }) {
       </header>
 
       <section className="carrito-list">
-        {items.map((item) => (
+        {carritoItems.map((item) => (
           <article className="carrito-item" key={item.producto.id}>
             <img src={item.producto.imagen} alt={item.producto.nombre} />
             <div className="carrito-item-info">
