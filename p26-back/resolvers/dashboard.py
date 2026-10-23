@@ -30,8 +30,8 @@ async def ventas_intervalo_tiempo(info: strawberry.Info, interval: int) -> List[
             "COALESCE(SUM(p.total), 0)::float AS total, "
             "COUNT(p.id) AS pedidos "
             "FROM generate_series("
-            "(now() AT TIME ZONE 'America/Mexico_City')::date - $1, "
-            "(now() AT TIME ZONE 'America/Mexico_City')::date, "
+            "(now() AT TIME ZONE 'America/Mexico_City')::timestamp - ($1 * interval '1 day'), "
+            "(now() AT TIME ZONE 'America/Mexico_City')::timestamp, "
             "interval '1 day') AS dias(dia) "
             "LEFT JOIN pedido p "
             "ON (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City')::date = dias.dia::date "
@@ -101,7 +101,7 @@ class DashboardQueries:
         pool = info.context["pool"]
         pedidos = await ventas_intervalo_tiempo(info, 6)
         avg = (
-            sum(item["total_vendido"] for item in pedidos) / len(pedidos) if pedidos else 0
+            sum(item.total for item in pedidos) / len(pedidos) if pedidos else 0
         )
         return avg
 
@@ -111,7 +111,7 @@ class DashboardQueries:
         pool = info.context["pool"]
         pedidos = await ventas_intervalo_tiempo(info, 29)
         avg = (
-            sum(item["total_vendido"] for item in pedidos) / len(pedidos) if pedidos else 0
+            sum(item.total for item in pedidos) / len(pedidos) if pedidos else 0
         )
         return avg
 
