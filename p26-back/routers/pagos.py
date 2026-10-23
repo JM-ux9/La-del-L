@@ -30,10 +30,8 @@ MENSAJE_RECHAZO = "Mercado Pago rechazó el pago. Verifica los datos o intenta c
 MENSAJE_ERROR = "No pudimos procesar tu pago en este momento. Inténtalo de nuevo o usa otro medio de pago."
 
 MENSAJES_RECHAZO = {
-    # Datos mal capturados
     "bad_filled_card_data": "Revisa los datos de tu tarjeta (número, vencimiento y código de seguridad) e inténtalo de nuevo.",
     "invalid_card_token": "No pudimos validar tu tarjeta. Vuelve a ingresar los datos e inténtalo de nuevo.",
-    # Rechazos del banco emisor
     "insufficient_amount": "La tarjeta no tiene fondos suficientes para completar el pago.",
     "amount_limit_exceeded": "El monto excede el límite permitido de tu tarjeta. Intenta con otra tarjeta.",
     "required_call_for_authorize": "Tu banco requiere que autorices este pago. Comunícate con él e inténtalo de nuevo.",
@@ -44,7 +42,6 @@ MENSAJES_RECHAZO = {
     "rejected_by_issuer": "Tu banco rechazó el pago. Comunícate con él o intenta con otra tarjeta.",
     "cc_rejected_other_reason": "Tu banco no aprobó el pago. Comunícate con él o intenta con otra tarjeta.",
     "processing_error": "Ocurrió un error al procesar el pago. Inténtalo de nuevo en unos minutos.",
-    # Riesgo: genéricos a propósito
     "high_risk": "El pago no pudo aprobarse por motivos de seguridad. Intenta con otro medio de pago.",
     "in_review": "No pudimos confirmar el pago. Intenta con otro medio de pago.",
 }
@@ -54,7 +51,6 @@ MENSAJES_ERROR_API = {
     "resource_locked": "Tu pago ya se está procesando. Espera unos segundos.",
     "internal_error": "Mercado Pago tuvo un problema temporal. Inténtalo de nuevo en unos minutos.",
 }
-
 
 
 class _Modelo(BaseModel):
@@ -80,9 +76,6 @@ class CrearOrdenRequest(_Modelo):
     payer: PagadorPago
 
 
-# ------------------------------------------------------------- dependencias
-
-
 def usuario_actual(authorization: Annotated[str | None, Header()] = None) -> dict:
     usuario, expirado = usuario_desde_header(authorization)
     if usuario is None:
@@ -99,9 +92,6 @@ def sdk_configurado():
     return sdk
 
 
-# ----------------------------------------------------------------- helpers
-
-
 def _a_decimal(valor) -> Decimal:
     try:
         return Decimal(str(valor)).quantize(Decimal("0.01"))
@@ -110,12 +100,6 @@ def _a_decimal(valor) -> Decimal:
 
 
 def _interpretar(resultado: dict) -> tuple[int, dict, str | None]:
-    """Normaliza la respuesta de Mercado Pago a (http, orden, código de error).
-
-    - Éxito: la order viene en `response`.
-    - Rechazo (402): `response` trae `errors` y la order completa dentro de `data`.
-    - Error de API (400, 409, 423...): `response` trae solo `errors`.
-    """
     http = resultado.get("status")
     http = http if isinstance(http, int) else 500
     cuerpo = resultado.get("response")
@@ -144,18 +128,17 @@ def _detalle_rechazo(orden: dict) -> str | None:
 
 
 async def _marcar_pedido(pool, pedido_id: int, estado: str) -> None:
-    # Un pedido ya PAGADO nunca se degrada.
     async with pool.acquire() as conn:
-        await conn.execute(
-            "UPDATE pedido SET status = $1 WHERE id = $2 AND status <> 'PAGADO'",
+        usuario_id = await conn.fetchval(
+            "UPDATE pedido SET status = $1 WHERE id = $2 AND status <> 'PAGADO' RETURNING usuario_id",
             estado,
             pedido_id,
         )
 
-    eventos.publicar(eventos.canal_pedido(pedido_id), pedido_id)
-    eventos.publicar(eventos.CANAL_PEDIDOS, pedido_id)
-
-
+    if usuario_id is not None:
+        eventos.publicar(eventos.canal_usuario(usuario_id), pedido_id)
+        eventos.publicar(eventos.canal_pedido(pedido_id), pedido_id)
+        eventos.publicar(eventos.CANAL_PEDIDOS, pedido_id)
 
 
 @router.post("/orders")
@@ -280,7 +263,7 @@ async def recibir_webhook_mercadopago(request: Request, mp=Depends(sdk_configura
         raise HTTPException(status_code=400, detail="Referencia de pedido inválida")
 
     estado = ESTADO_LOCAL.get(orden.get("status"))
-    if estado is None:  # estado intermedio (processing, action_required...): no se toca el pedido
+    if estado is None:
         return {"received": True}
 
     pool = request.app.state.pool

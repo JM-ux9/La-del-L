@@ -1,23 +1,21 @@
-"""Bus de eventos en memoria (pub/sub) para las Subscriptions de GraphQL.
-
-Funciona con UN solo proceso de uvicorn. Con varios workers o instancias, un evento
-publicado en un proceso no llega a los suscriptores de otro (habría que usar Redis
-o LISTEN/NOTIFY de Postgres).
-"""
 import asyncio
 from collections import defaultdict
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator, AsyncIterator
 
-MAX_PENDIENTES = 100  # eventos en espera por suscriptor antes de descartar los más viejos
+MAX_PENDIENTES = 100
 
-CANAL_PEDIDOS = "pedidos"  # todos los pedidos (para un futuro back office)
+CANAL_PEDIDOS = "pedidos"
 
 _suscriptores: dict[str, set[asyncio.Queue]] = defaultdict(set)
 
 
 def canal_pedido(pedido_id: int) -> str:
     return f"pedido:{pedido_id}"
+
+
+def canal_usuario(usuario_id: int) -> str:
+    return f"usuario:{usuario_id}"
 
 
 def publicar(canal: str, datos: Any) -> None:

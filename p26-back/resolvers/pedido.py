@@ -60,7 +60,6 @@ class RenglonInput:
 @strawberry.input
 class PedidoInput:
     renglones: List[RenglonInput]
-    # usuario_id: int
 
 async def pedidos_by_cliente(info: strawberry.Info, id: int) -> List[Pedido]:
     pool = info.context["pool"]
@@ -78,10 +77,17 @@ async def pedidos_by_cliente(info: strawberry.Info, id: int) -> List[Pedido]:
 async def update_pedido(info: strawberry.Info, id: int, new_stat: str) -> bool:
     pool = info.context["pool"]
     async with pool.acquire() as conn:
-        await conn.execute("UPDATE pedido SET status = $1 WHERE id = $2", new_stat, id)
+        usuario_id = await conn.fetchval(
+            "UPDATE pedido SET status = $1 WHERE id = $2 RETURNING usuario_id",
+            new_stat,
+            id,
+        )
 
-    eventos.publicar(eventos.canal_pedido(id), id)
-    eventos.publicar(eventos.CANAL_PEDIDOS, id)
+    if usuario_id is not None:
+        eventos.publicar(eventos.canal_usuario(usuario_id), id)
+        eventos.publicar(eventos.canal_pedido(id), id)
+        eventos.publicar(eventos.CANAL_PEDIDOS, id)
+
     return True
 
 @strawberry.type
@@ -90,8 +96,8 @@ class PedidoQueries:
     async def pedidos_pendientes(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
         pool = info.context["pool"]
         requerir_admin(info)
-        async with pool.acquire as conn:
-            rows = await conn.fetch("SELECT * FROM pedido ORDER BY id LIMIT $1 OFFSET $2 WHERE status = 'PENDIENTE'", limite or 10, desde or 0)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("SELECT * FROM pedido WHERE status = 'PENDIENTE' ORDER BY id LIMIT $1 OFFSET $2", limite or 10, desde or 0)
             return [Pedido (**dict(r)) for r in rows]
 
     @strawberry.field
@@ -120,25 +126,21 @@ class PedidoMutations:
     @strawberry.mutation
     async def set_in_progress(self, info: strawberry.Info, id: int) -> bool:
         requerir_admin(info)
-        pool = info.context["pool"]
         return await update_pedido(info, id, "EN PROCESO")
 
     @strawberry.mutation
     async def set_ready(self, info: strawberry.Info, id: int) -> bool:
         requerir_admin(info)
-        pool = info.context["pool"]
         return await update_pedido(info, id, "LISTO")
 
     @strawberry.mutation
     async def set_delivered(self, info: strawberry.Info, id: int) -> bool:
         requerir_admin(info)
-        pool = info.context["pool"]
         return await update_pedido(info, id, "ENTREGADO")
 
     @strawberry.mutation
     async def set_canceled(self, info: strawberry.Info, id: int) -> bool:
         requerir_admin(info)
-        pool = info.context["pool"]
         return await update_pedido(info, id, "CANCELADO")
 
     @strawberry.mutation
@@ -157,7 +159,7 @@ class PedidoMutations:
             async with conn.transaction():
                 producto_ids = list({r.producto_id for r in datos.renglones})
                 productos_rows = await conn.fetch(
-                    "SELECT id, precio, disponible FROM producto WHERE id = ANY($1::int[])", producto_ids
+                    "SELECT id, precio, disponible, nombre FROM producto WHERE id = ANY($1::int[])", producto_ids
                 )
                 productos = {row["id"]: row for row in productos_rows}
 
@@ -174,7 +176,7 @@ class PedidoMutations:
                 total = sum(precios[r.producto_id] * r.cantidad for r in datos.renglones)
 
                 pedido_row = await conn.fetchrow(
-                    "INSERT INTO pedido (fecha, total, status, usuario_id) VALUES (now(), $1, $2, $3) RETURNING *",
+                    "INSERT INTO pedido (fecha, total, status, usuario_id) VALUES (now(), $1, $2, $3) RETURNING id, to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, total, status, usuario_id",
                     total, "PENDIENTE", usuario["usuario_id"]
                 )
 
@@ -186,7 +188,8 @@ class PedidoMutations:
                     )
 
         nuevo_pedido_id = pedido_row["id"]
-        eventos.publicar(eventos.CANAL_PEDIDOS, nuevo_pedido_id)
+        eventos.publicar(eventos.canal_usuario(usuario["usuario_id"]), nuevo_pedido_id)
         eventos.publicar(eventos.canal_pedido(nuevo_pedido_id), nuevo_pedido_id)
+        eventos.publicar(eventos.CANAL_PEDIDOS, nuevo_pedido_id)
 
         return Pedido(**dict(pedido_row))
