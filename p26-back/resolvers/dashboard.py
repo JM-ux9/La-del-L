@@ -22,6 +22,33 @@ class CategoriaVendida:
     cantidad_vendida: int
     total_vendido: float
 
+async def ventas_intervalo_tiempo(info: strawberry.Info, interval: int) -> List[VentaDia]:
+    pool = info.context["pool"]
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT to_char(dias.dia, 'YYYY-MM-DD') AS fecha, "
+            "COALESCE(SUM(p.total), 0)::float AS total, "
+            "COUNT(p.id) AS pedidos "
+            "FROM generate_series("
+            "(now() AT TIME ZONE 'America/Mexico_City')::date - $1, "
+            "(now() AT TIME ZONE 'America/Mexico_City')::date, "
+            "interval '1 day') AS dias(dia) "
+            "LEFT JOIN pedido p "
+            "ON (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City')::date = dias.dia::date "
+            "AND p.status = 'PAGADO'"
+            "GROUP BY dias.dia "
+            "ORDER BY dias.dia",
+            interval
+        )
+        return [
+            VentaDia(
+                fecha=r["fecha"],
+                total=float(r["total"]),
+                pedidos=int(r["pedidos"]),
+            )
+            for r in rows
+        ]
+
 @strawberry.type
 class DashboardQueries:
     @strawberry.field
@@ -54,28 +81,39 @@ class DashboardQueries:
     async def ventas_semana(self, info: strawberry.Info) -> List[VentaDia]:
         requerir_admin(info)
         pool = info.context["pool"]
-        async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                "SELECT to_char(dias.dia, 'YYYY-MM-DD') AS fecha, "
-                "COALESCE(SUM(p.total), 0)::float AS total, "
-                "COUNT(p.id) AS pedidos "
-                "FROM generate_series("
-                "(now() AT TIME ZONE 'America/Mexico_City')::date - 6, "
-                "(now() AT TIME ZONE 'America/Mexico_City')::date, "
-                "interval '1 day') AS dias(dia) "
-                "LEFT JOIN pedido p "
-                "ON (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City')::date = dias.dia::date "
-                "GROUP BY dias.dia "
-                "ORDER BY dias.dia"
-            )
-            return [
-                VentaDia(
-                    fecha=r["fecha"],
-                    total=float(r["total"]),
-                    pedidos=int(r["pedidos"]),
-                )
-                for r in rows
-            ]
+        return await ventas_intervalo_tiempo(info, 6)
+
+    @strawberry.field
+    async def ventas_mes(self, info: strawberry.Info) -> List[VentaDia]:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        return await ventas_intervalo_tiempo(info, 29)
+
+    @strawberry.field
+    async def ventas_5_dias(self, info: strawberry.Info) -> List[VentaDia]:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        return await ventas_intervalo_tiempo(info, 4)
+
+    @strawberry.field
+    async def avg_week(self, info: strawberry.Info) -> float:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        pedidos = await ventas_intervalo_tiempo(info, 6)
+        avg = (
+            sum(item["total_vendido"] for item in pedidos) / len(pedidos) if pedidos else 0
+        )
+        return avg
+
+    @strawberry.field
+    async def avg_month(self, info: strawberry.Info) -> float:
+        requerir_admin(info)
+        pool = info.context["pool"]
+        pedidos = await ventas_intervalo_tiempo(info, 29)
+        avg = (
+            sum(item["total_vendido"] for item in pedidos) / len(pedidos) if pedidos else 0
+        )
+        return avg
 
     @strawberry.field
     async def categorias_mas_vendidas(self, info: strawberry.Info) -> List[CategoriaVendida]:
