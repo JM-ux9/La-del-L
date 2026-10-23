@@ -30,12 +30,12 @@ async def ventas_intervalo_tiempo(info: strawberry.Info, interval: int) -> List[
             "COALESCE(SUM(p.total), 0)::float AS total, "
             "COUNT(p.id) AS pedidos "
             "FROM generate_series("
-            "(now() AT TIME ZONE 'America/Mexico_City')::date - $1, "
+            "(now() AT TIME ZONE 'America/Mexico_City')::date - $1::int, "
             "(now() AT TIME ZONE 'America/Mexico_City')::date, "
             "interval '1 day') AS dias(dia) "
             "LEFT JOIN pedido p "
             "ON (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City')::date = dias.dia::date "
-            "AND p.status = 'PAGADO'"
+            "AND p.status = 'PAGADO' "
             "GROUP BY dias.dia "
             "ORDER BY dias.dia",
             interval

@@ -10,4 +10,4 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Connect to the database
 async def create_pool():
-    return await asyncpg.create_pool(DATABASE_URL)
+    return await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=10)
