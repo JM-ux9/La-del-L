@@ -1,17 +1,12 @@
 # Backend P26
 
-Backend de la tienda Kegovc construido con FastAPI, Strawberry GraphQL y PostgreSQL alojado en Supabase.
-
-## Base de datos en la nube
-
-- [Abrir proyecto en Supabase](https://supabase.com/dashboard/project/uofaxfmbilrtjorblprt)
-
-La aplicación se conecta a PostgreSQL mediante la variable `DATABASE_URL`. No publiques esta URL con sus credenciales.
+Backend de la tienda **Café del L**, construido con FastAPI, Strawberry GraphQL y PostgreSQL alojado en Supabase. También expone endpoints REST para crear y consultar órdenes de Mercado Pago y recibir webhooks.
 
 ## Requisitos
 
 - Python 3.10 o superior
-- Acceso a la base de datos de Supabase
+- PostgreSQL/Supabase
+- Credenciales de Mercado Pago y Brevo
 
 ## Instalación
 
@@ -20,67 +15,69 @@ Desde esta carpeta, crea y activa un entorno virtual:
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
-
-Instala las dependencias:
-
-```powershell
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
 ## Variables de entorno
 
-Crea un archivo `.env` en la raíz del backend con la cadena de conexión de PostgreSQL:
+Crea un archivo `.env` en la raíz de `p26-back/`:
 
 ```env
-DATABASE_URL=postgresql://postgres.uofaxfmbilrtjorblprt:e-commerce-kegovc@aws-0-ca-central-1.pooler.supabase.com:5432/postgres
+DATABASE_URL=postgresql://usuario:password@host:5432/postgres
+SECRET_KEY=una-clave-secreta-larga
+MERCADOPAGO_ACCESS_TOKEN=TEST-tu-access-token
+MERCADOPAGO_WEBHOOK_SECRET=tu-secreto-del-webhook
+BREVO-API-KEY=tu-api-key-de-brevo
 ```
 
-El archivo `.env` está excluido de Git mediante `.gitignore`. Usa la cadena de conexión proporcionada por Supabase y conserva sus credenciales únicamente en variables de entorno.
+- `DATABASE_URL`: cadena de conexión a PostgreSQL/Supabase.
+- `SECRET_KEY`: clave usada para firmar los JSON Web Tokens.
+- `MERCADOPAGO_ACCESS_TOKEN`: Access Token de Mercado Pago usado por el SDK del backend.
+- `MERCADOPAGO_WEBHOOK_SECRET`: secreto usado para validar la firma del webhook de Orders.
+- `BREVO-API-KEY`: API key usada para enviar correos transaccionales con Brevo.
 
-Agrega también `SECRET_KEY`, `MERCADOPAGO_ACCESS_TOKEN` y
-`MERCADOPAGO_WEBHOOK_SECRET` al archivo `.env`. Durante las pruebas, usa la llave
-pública de prueba en el frontend y el Access Token de prueba de la misma
-aplicación aquí. No incluyas el Access Token ni el secreto del webhook en el
-frontend.
+El archivo `.env` está excluido de Git. No publiques credenciales ni las incluyas en el frontend. Durante las pruebas, utiliza el Access Token y la clave pública que pertenezcan a la misma aplicación de Mercado Pago en modo prueba.
 
 ## Ejecución
-
-Inicia el servidor en modo desarrollo:
 
 ```powershell
 python -m uvicorn main:app --reload
 ```
 
-La API estará disponible en:
+Endpoints principales:
 
-- GraphQL: http://127.0.0.1:8000/graphql
-- Crear orden Checkout API: `POST http://127.0.0.1:8000/v1/orders` (requiere un
-  token de acceso y el encabezado `X-Idempotency-Key`)
-- Consultar estado del pedido: `GET http://127.0.0.1:8000/v1/orders/{pedido_id}/status`
-- Webhook de Orders: `POST http://127.0.0.1:8000/v1/mercadopago/webhook`
+- GraphQL: `http://127.0.0.1:8000/graphql`
+- Crear orden: `POST http://127.0.0.1:8000/v1/orders`
+- Consultar estado: `GET http://127.0.0.1:8000/v1/orders/{pedido_id}/status`
+- Webhook de Mercado Pago: `POST http://127.0.0.1:8000/v1/mercadopago/webhook`
 
-Si Mercado Pago rechaza el pago, `POST /v1/orders` consulta la orden por ID
-cuando está disponible y toma el motivo de
-`transactions.payments.status_detail`, como se describe en la referencia de
-[obtener orden por ID](https://www.mercadopago.com.mx/developers/es/reference/online-payments/checkout-api/get-order/get).
-La API responde con HTTP 402 y un `detail` que incluye el código y un mensaje
-traducido al español cuando existe `status_detail`; si no se creó una orden
-consultable, conserva el mensaje que devuelva la API. Si Mercado Pago no creó
-una orden, la API devuelve un error de integración y no cambia el estado local
-del pedido.
+La creación de órdenes requiere un token de acceso válido y el encabezado `X-Idempotency-Key`. El frontend envía los datos del checkout, pero el importe se obtiene desde los productos guardados en la base de datos.
 
-En el panel de Mercado Pago, configura el evento **Order (Mercado Pago)** para
-apuntar al webhook y copia el secreto generado a `MERCADOPAGO_WEBHOOK_SECRET`.
-Para probar el webhook mientras el backend corre en localhost se necesita una
-URL HTTPS pública temporal (por ejemplo, mediante un túnel); el checkout y la
-creación de órdenes sí pueden probarse directamente en localhost.
+## Webhooks de Mercado Pago
 
-Para iniciar el servidor en un puerto específico:
+Configura el evento **Order (Mercado Pago)** para que apunte a `/v1/mercadopago/webhook` y copia el secreto generado a `MERCADOPAGO_WEBHOOK_SECRET`.
+
+Mercado Pago necesita una URL HTTPS pública. Para probar webhooks con el servidor local, usa un túnel HTTPS temporal. El checkout y la creación de órdenes sí pueden probarse directamente en localhost.
+
+Si Mercado Pago rechaza el pago, el backend consulta la orden disponible y traduce el `status_detail` conocido a un mensaje en español. Si la creación falla o Mercado Pago no genera una orden consultable, devuelve un error de integración sin modificar el pedido local.
+
+## Tecnologías
+
+- FastAPI y Strawberry GraphQL.
+- Suscripciones SSE y WebSocket.
+- PostgreSQL mediante `asyncpg` y Supabase.
+- JWT con python-jose y hashing Argon2/passlib.
+- Mercado Pago Checkout API.
+- Brevo para correos de bienvenida, pedidos y cambios de estado.
+- Pydantic para validación de solicitudes REST.
+
+El esquema GraphQL está en `schema.py`; las consultas, mutaciones y suscripciones están en `resolvers/`.
+
+## Pruebas
+
+Desde el directorio del backend:
 
 ```powershell
-python -m uvicorn main:app --host 0.0.0.0 --port 8000
+python -m unittest tests/test_payments.py
 ```
-
-El esquema GraphQL se define en `schema.py` y sus consultas y mutaciones se encuentran en la carpeta `resolvers/`.

@@ -15,3 +15,7 @@ email-validator
 
 # Variables de entorno
 python-dotenv
+
+# HTTP y correo transaccional
+requests
+brevo

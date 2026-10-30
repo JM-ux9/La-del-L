@@ -1,61 +1,77 @@
-# Astro Starter Kit: Minimal
+# Frontend de Café del L
 
-```sh
-npm create astro@latest -- --template minimal
+Aplicación web de la tienda **Café del L**, construida con Astro 7, React 19 y Zustand. Consume el backend mediante GraphQL y REST para consultar el catálogo, administrar pedidos y procesar pagos con Mercado Pago.
+
+## Requisitos
+
+- Node.js 22.12 o superior
+- npm
+- Backend ejecutándose en `http://localhost:8000`
+
+## Instalación y ejecución
+
+Desde esta carpeta:
+
+```powershell
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+El servidor de desarrollo estará disponible en `http://localhost:4321`.
 
-## 🚀 Project Structure
+| Comando | Acción |
+| --- | --- |
+| `npm run dev` | Inicia el servidor de desarrollo |
+| `npm run build` | Genera la versión de producción en `dist/` |
+| `npm run preview` | Previsualiza la compilación de producción |
 
-Inside of your Astro project, you'll see the following folders and files:
+## Variables de entorno
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+Crea un archivo `.env` en la raíz de `front/`:
+
+```env
+PUBLIC_GRAPHQL_URL=http://localhost:8000/graphql
+PUBLIC_API_URL=http://localhost:8000
+PUBLIC_MERCADOPAGO_PUBLIC_KEY=TEST-tu-clave-publica
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+- `PUBLIC_GRAPHQL_URL`: endpoint GraphQL. Por defecto usa `http://localhost:8000/graphql`.
+- `PUBLIC_API_URL`: URL base de la API REST. Por defecto se deriva del endpoint GraphQL.
+- `PUBLIC_MERCADOPAGO_PUBLIC_KEY`: clave pública de Mercado Pago de la misma aplicación configurada en el backend.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+No uses aquí el Access Token ni secretos privados de Mercado Pago.
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Funcionalidades
 
-## 🧞 Commands
+- Catálogo de productos y navegación por categorías.
+- Registro, inicio de sesión, perfil y carrito.
+- Checkout con Card Payment Brick de Mercado Pago.
+- Consulta del estado y detalle de pedidos del usuario.
+- Suscripciones y panel de administración.
+- Administración de productos, usuarios y pedidos.
+- Suscripciones GraphQL para recibir cambios de pedidos en tiempo real.
 
-All commands are run from the root of the project, from a terminal:
+## Rutas principales
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+| Ruta | Función |
+| --- | --- |
+| `/` | Inicio y catálogo |
+| `/categorias/[id]` | Productos por categoría |
+| `/products/[id]` | Detalle de producto |
+| `/carrito` | Carrito de compras |
+| `/checkout` | Checkout |
+| `/login` | Inicio de sesión |
+| `/perfil` | Perfil del usuario |
+| `/mis-pedidos` | Pedidos del usuario |
+| `/pago-error` | Resultado fallido del pago |
+| `/dashboard` | Dashboard administrativo |
+| `/admin/pedidos` | Administración de pedidos |
+| `/admin/pedidos-en-proceso` | Pedidos en proceso |
+| `/admin/productos` | Administración de productos |
+| `/admin/usuarios` | Administración de usuarios |
 
-## MercadoPago checkout
+## Integración con el backend
 
-Set `PUBLIC_MERCADOPAGO_PUBLIC_KEY` in `front/.env` to the public key for the
-same Mercado Pago application configured in the backend. For local testing, use
-the application's test public key here and its matching test Access Token in
-`p26-back/.env`. Do not expose the Access Token in the frontend.
+El cliente GraphQL se encuentra en `src/services/`, al igual que los servicios de autenticación, pagos y suscripciones. Las consultas y mutaciones se envían al endpoint configurado por `PUBLIC_GRAPHQL_URL`.
 
-The Card Payment Brick tokenizes card details in the browser. The backend then
-creates the order with Checkout API at `http://localhost:8000/v1/orders`; set
-`PUBLIC_API_URL` to change the API host. The order uses the amount stored in the
-database, not the amount submitted by the browser.
-
-Orders that require additional verification or asynchronous processing remain
-pending. Configure the Mercado Pago **Order** webhook to call
-`/v1/mercadopago/webhook` and set its generated secret as
-`MERCADOPAGO_WEBHOOK_SECRET` in the backend. A localhost server is not publicly
-reachable by Mercado Pago, so use an HTTPS tunnel for local webhook testing.
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Los pagos usan la API REST `POST /v1/orders`. El backend valida que los importes provengan de los productos almacenados en la base de datos y utiliza el endpoint `/v1/mercadopago/webhook` para recibir actualizaciones de Mercado Pago. Para pruebas locales con webhooks, el backend debe estar accesible mediante una URL HTTPS pública temporal.
