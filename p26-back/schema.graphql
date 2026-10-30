@@ -92,7 +92,12 @@ type Query {
   producto(id: Int!): Producto
   categorias: [Categoria!]!
   categoria(id: Int!): Categoria
-  pedidosPendientes(limite: Int = null, desde: Int = null): [Pedido!]!
+  pedidosPagados(limite: Int = null, desde: Int = null): [Pedido!]!
+  pedidosListos(limite: Int = null, desde: Int = null): [Pedido!]!
+  pedidosEntregados(limite: Int = null, desde: Int = null): [Pedido!]!
+  pedidosRechazados(limite: Int = null, desde: Int = null): [Pedido!]!
+  pedidosCancelados(limite: Int = null, desde: Int = null): [Pedido!]!
+  pedidosEnProceso(limite: Int = null, desde: Int = null): [Pedido!]!
   pedidos(limite: Int = null, desde: Int = null): [Pedido!]!
   misPedidos: [Pedido!]!
   pedidosByClienteId(id: Int!): [Pedido!]!

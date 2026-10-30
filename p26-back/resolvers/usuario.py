@@ -3,6 +3,7 @@ from typing import Optional, List
 from enum import Enum
 from passlib.context import CryptContext
 from email_validator import validate_email, EmailNotValidError
+from brevo_service import enviar_correo_bienvenida
 from jwt_service import (
     generar_access_token,
     generar_refresh_token,
@@ -105,6 +106,9 @@ class UsuarioMutations:
                 row = await conn.fetchrow("INSERT INTO usuario (nombre, email, password, rol) VALUES ($1, $2, $3, $4) RETURNING *", nombre, normalized_email, hashed, "CLIENTE")
             except asyncpg.UniqueViolationError:
                 raise Exception("Este correo ya se encuentra registrado")
+
+            if row:
+                await enviar_correo_bienvenida(row["email"], row["nombre"])
             
             return Usuario(**{**dict(row), "rol": RolEnum(row["rol"])}) if row else None
 

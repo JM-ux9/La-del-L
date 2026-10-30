@@ -2,6 +2,7 @@ import eventos
 import strawberry
 from typing import Annotated, List, Optional, TYPE_CHECKING
 from auth import requerir_usuario, requerir_admin
+from brevo_service import enviar_correo_status_pedido, crear_html_pedido_changed_status
 
 if TYPE_CHECKING:
     from resolvers.producto import Producto
@@ -79,7 +80,7 @@ async def update_pedido(info: strawberry.Info, id: int, new_stat: str) -> bool:
     pool = info.context["pool"]
     async with pool.acquire() as conn:
         usuario_id = await conn.fetchval(
-            "UPDATE pedido SET status = $1 WHERE id = $2 RETURNING usuario_id",
+            f"UPDATE pedido SET status = $1{", fecha_entrega = NULL" if new_stat == "CANCELADO" else ""} WHERE id = $2 RETURNING usuario_id",
             new_stat,
             id,
         )
@@ -90,6 +91,37 @@ async def update_pedido(info: strawberry.Info, id: int, new_stat: str) -> bool:
         eventos.publicar(eventos.CANAL_PEDIDOS, id)
 
     return True
+
+async def get_email_order_info(info: strawberry.Info, id: int):
+    pool = info.context["pool"]
+    async with pool.acquire() as conn:
+        pedido_data = await conn.fetch(
+            """
+            SELECT
+                ped.id AS id,
+                ped.total,
+                ped.usuario_id,
+                ped.status,
+                to_char(ped.fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega,
+                dp.id AS detalle_id,
+                dp.cantidad,
+                dp.importe,
+                prod.id AS producto_id,
+                prod.nombre AS producto_nombre,
+                usr.nombre AS usuario_nombre,
+                usr.email AS usuario_email
+            FROM pedido AS ped
+            INNER JOIN detalle_pedido AS dp
+                ON dp.pedido_id = ped.id
+            INNER JOIN producto AS prod
+                ON prod.id = dp.producto_id
+            INNER JOIN usuario AS usr
+                ON usr.id = ped.usuario_id
+            WHERE ped.id = $1;
+            """,
+            id,
+        )
+        return pedido_data
 
 @strawberry.type
 class PedidoQueries:
@@ -103,6 +135,66 @@ class PedidoQueries:
                 "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
                 "total, status, usuario_id "
                 "FROM pedido WHERE status = 'PAGADO' "
+                "ORDER BY id DESC LIMIT $1 OFFSET $2",
+                limite or 10, desde or 0,
+            )
+            return [Pedido (**dict(r)) for r in rows]
+
+    @strawberry.field
+    async def pedidos_listos(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, "
+                "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                "total, status, usuario_id "
+                "FROM pedido WHERE status = 'LISTO' "
+                "ORDER BY id DESC LIMIT $1 OFFSET $2",
+                limite or 10, desde or 0,
+            )
+            return [Pedido (**dict(r)) for r in rows]
+        
+    @strawberry.field
+    async def pedidos_entregados(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, "
+                "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                "total, status, usuario_id "
+                "FROM pedido WHERE status = 'ENTREGADO' "
+                "ORDER BY id DESC LIMIT $1 OFFSET $2",
+                limite or 10, desde or 0,
+            )
+            return [Pedido (**dict(r)) for r in rows]
+
+    @strawberry.field
+    async def pedidos_rechazados(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, "
+                "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                "total, status, usuario_id "
+                "FROM pedido WHERE status = 'RECHAZADO' "
+                "ORDER BY id DESC LIMIT $1 OFFSET $2",
+                limite or 10, desde or 0,
+            )
+            return [Pedido (**dict(r)) for r in rows]
+
+    @strawberry.field
+    async def pedidos_cancelados(self, info: strawberry.Info, limite: Optional[int] = None, desde: Optional[int] = None) -> List[Pedido]:
+        pool = info.context["pool"]
+        requerir_admin(info)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, "
+                "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                "total, status, usuario_id "
+                "FROM pedido WHERE status = 'CANCELADO' "
                 "ORDER BY id DESC LIMIT $1 OFFSET $2",
                 limite or 10, desde or 0,
             )
@@ -154,28 +246,48 @@ class PedidoQueries:
 @strawberry.type
 class PedidoMutations:
     @strawberry.mutation
-    async def set_in_progress(self, info: strawberry.Info, id: int) -> bool:
+    async def set_in_progress(self, info: strawberry.Info, id: int, minutos: int) -> bool:
         requerir_admin(info)
         pool = info.context["pool"]
-        return await update_pedido(info, id, "EN PROCESO")
+        status_update = await update_pedido(info, id, "EN PROCESO")
+        async with pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE pedido SET fecha_entrega = NOW() + ($1 * INTERVAL '1 minute') WHERE id = $2", minutos, id
+            )
+        dict_data = await get_email_order_info(info, id)
+        root_values = dict_data[0] if dict_data else None
+        await enviar_correo_status_pedido(root_values["usuario_email"], root_values["usuario_nombre"], crear_html_pedido_changed_status(dict_data), "EN PROCESO")
+        return status_update
 
     @strawberry.mutation
     async def set_ready(self, info: strawberry.Info, id: int) -> bool:
         requerir_admin(info)
         pool = info.context["pool"]
-        return await update_pedido(info, id, "LISTO")
+        status_update = await update_pedido(info, id, "LISTO")
+        dict_data = await get_email_order_info(info, id)
+        root_values = dict_data[0] if dict_data else None
+        await enviar_correo_status_pedido(root_values["usuario_email"], root_values["usuario_nombre"], crear_html_pedido_changed_status(dict_data), "LISTO")
+        return status_update
 
     @strawberry.mutation
     async def set_delivered(self, info: strawberry.Info, id: int) -> bool:
         requerir_admin(info)
         pool = info.context["pool"]
-        return await update_pedido(info, id, "ENTREGADO")
+        status_update = await update_pedido(info, id, "ENTREGADO")
+        dict_data = await get_email_order_info(info, id)
+        root_values = dict_data[0] if dict_data else None
+        await enviar_correo_status_pedido(root_values["usuario_email"], root_values["usuario_nombre"], crear_html_pedido_changed_status(dict_data), "ENTREGADO")
+        return status_update
 
     @strawberry.mutation
     async def set_canceled(self, info: strawberry.Info, id: int) -> bool:
         requerir_admin(info)
         pool = info.context["pool"]
-        return await update_pedido(info, id, "CANCELADO")
+        status_update = await update_pedido(info, id, "CANCELADO")
+        dict_data = await get_email_order_info(info, id)
+        root_values = dict_data[0] if dict_data else None
+        await enviar_correo_status_pedido(root_values["usuario_email"], root_values["usuario_nombre"], crear_html_pedido_changed_status(dict_data), "CANCELADO")
+        return status_update
 
     @strawberry.mutation
     async def crear_pedido(self, info: strawberry.Info, datos: PedidoInput) -> Pedido:
