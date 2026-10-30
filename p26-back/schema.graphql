@@ -57,6 +57,7 @@ type Pedido {
   status: String!
   usuario: Usuario!
   detalles: [DetallePedido!]!
+  fechaEntrega: String
 }
 
 input PedidoInput {

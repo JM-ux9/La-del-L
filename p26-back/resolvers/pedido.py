@@ -34,6 +34,7 @@ class Pedido:
     total: float
     status: str
     usuario_id: strawberry.Private[int]
+    fecha_entrega: Optional[str] = None
 
     @strawberry.field
     async def usuario(
@@ -69,7 +70,8 @@ async def pedidos_by_cliente(info: strawberry.Info, id: int) -> List[Pedido]:
         rows = await conn.fetch(
             "SELECT id, "
             "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
-            "total, status, usuario_id "
+            "total, status, usuario_id, "
+            "to_char(fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega "
             "FROM pedido WHERE usuario_id = $1 "
             "ORDER BY id DESC",
             id,
@@ -133,7 +135,8 @@ class PedidoQueries:
             rows = await conn.fetch(
                 "SELECT id, "
                 "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
-                "total, status, usuario_id "
+                "total, status, usuario_id, "
+                "to_char(fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega "
                 "FROM pedido WHERE status = 'PAGADO' "
                 "ORDER BY id DESC LIMIT $1 OFFSET $2",
                 limite or 10, desde or 0,
@@ -208,7 +211,8 @@ class PedidoQueries:
             rows = await conn.fetch(
                 "SELECT id, "
                 "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
-                "total, status, usuario_id "
+                "total, status, usuario_id, "
+                "to_char(fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega "
                 "FROM pedido WHERE status = 'EN PROCESO' "
                 "ORDER BY id DESC LIMIT $1 OFFSET $2",
                 limite or 10, desde or 0,
