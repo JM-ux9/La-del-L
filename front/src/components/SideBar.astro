@@ -1,6 +1,7 @@
-  ---
+---
 import { fetchGraphQL } from "../services/api";
 import "./SideBar.css";
+import RecomendacionesClima from "./RecomendacionesClima.jsx";
 
 const data = (await fetchGraphQL(`
   query {
@@ -27,4 +28,5 @@ const rutaActual = Astro.url.pathname.replace(/\/$/, "");
       </li>
     ))}
   </ul>
+  <RecomendacionesClima client:load />
 </aside>

@@ -1,0 +1,64 @@
+.recomendaciones-clima {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.recomendaciones-clima h2 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.recomendaciones-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recomendacion {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  grid-template-areas:
+    "imagen nombre"
+    "imagen precio"
+    "boton boton";
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
+  align-items: center;
+  padding: 0.6rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.recomendacion img {
+  grid-area: imagen;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.recomendacion h3 {
+  grid-area: nombre;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.recomendacion p {
+  grid-area: precio;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.recomendacion .agregar-carrito {
+  grid-area: boton;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.4rem;
+  font-size: 0.8rem;
+}

@@ -13,6 +13,7 @@ class Producto:
     imagen: Optional[str] = None
     categoria_id: strawberry.Private[int]
     disponible: Optional[bool] = None
+    temperatura: Optional[str] = None
 
     @strawberry.field
     async def categoria(
@@ -32,6 +33,7 @@ class ProductoInput:
     imagen: Optional[str] = None
     categoria: int
     disponible: Optional[bool] = None
+    temperatura: Optional[str] = None
 
 @strawberry.type
 class ProductoQueries:
@@ -48,7 +50,15 @@ class ProductoQueries:
         async with pool.acquire() as conn:
             row = await conn.fetchrow("SELECT * FROM producto WHERE id = $1", id)
             return Producto(**dict(row)) if row else None
-
+    @strawberry.field
+    async def productos_por_temperatura(self, info: strawberry.Info, temperatura: str) -> List[Producto]:
+        pool = info.context["pool"]
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT * FROM producto WHERE temperatura = $1 AND disponible = TRUE ORDER BY id",
+                temperatura
+            )
+            return [Producto(**dict(r)) for r in rows]
 @strawberry.type
 class ProductoMutations:
     @strawberry.mutation
@@ -61,7 +71,7 @@ class ProductoMutations:
                 datos.disponible = True
             if datos.imagen is None:
                 datos.imagen = f"https://placehold.co/600x400/blue/white?text={datos.nombre.replace(' ', '+')}"
-            row = await conn.fetchrow("INSERT INTO producto (nombre, precio, imagen, categoria_id, disponible) VALUES ($1, $2, $3, $4, $5) RETURNING *", datos.nombre, datos.precio, datos.imagen, datos.categoria, datos.disponible)
+            row = await conn.fetchrow("INSERT INTO producto (nombre, precio, imagen, categoria_id, disponible, temperatura) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", datos.nombre, datos.precio, datos.imagen, datos.categoria, datos.disponible, datos.temperatura)
             return Producto(**dict(row))
 
     @strawberry.mutation
@@ -77,8 +87,8 @@ class ProductoMutations:
             disponible = True if datos.disponible is None else datos.disponible
 
             row = await conn.fetchrow(
-                "UPDATE producto SET nombre = $1, precio = $2, imagen = $3, categoria_id = $4, disponible = $5 WHERE id = $6 RETURNING *",
-                datos.nombre.strip(), datos.precio, imagen, datos.categoria, disponible, id
+                "UPDATE producto SET nombre = $1, precio = $2, imagen = $3, categoria_id = $4, disponible = $5, temperatura = $6 WHERE id = $7 RETURNING *",
+                datos.nombre.strip(), datos.precio, imagen, datos.categoria, disponible, datos.temperatura, id
             )
             return Producto(**dict(row)) if row else None
 
