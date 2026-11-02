@@ -1,0 +1,5 @@
+.modal-detalle {
+  width: min(560px, 92vw);
+  max-height: 85vh;
+  overflow-y: auto;
+}

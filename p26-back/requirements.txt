@@ -19,3 +19,6 @@ python-dotenv
 # HTTP y correo transaccional
 requests
 brevo-python
+
+#MCP
+mcp[cli]

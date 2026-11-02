@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { fetchGraphQL } from "../services/api";
+import { createPortal } from "react-dom";
+import "./BotonAgregar.css";
+
 const QUERY_DATOS = `
   query {
     pedidosEnProceso(limite: 100) {
@@ -85,11 +88,11 @@ function PaginaAdminPedidosEnProceso() {
     }, []);
 
     function verDetalle(pedido) {
-        if (abiertoId === pedido.id) {
-            setAbiertoId(null);
-        } else {
-            setAbiertoId(pedido.id);
-        }
+        setAbiertoId(pedido.id);
+    }
+
+    function cerrarDetalle() {
+        setAbiertoId(null);
     }
 
     async function cambiarStatus(pedido, mutation, texto) {
@@ -170,9 +173,7 @@ function PaginaAdminPedidosEnProceso() {
                                 <td>{pedido.status}</td>
                                 <td>
                                     <div className="admin-acciones">
-                                        <button onClick={() => verDetalle(pedido)}>
-                                            {abiertoId === pedido.id ? "Ocultar" : "Ver"}
-                                        </button>
+                                        <button onClick={() => verDetalle(pedido)}>Ver</button>
                                         {botonesStatus(pedido)}
                                     </div>
                                 </td>
@@ -191,31 +192,41 @@ function PaginaAdminPedidosEnProceso() {
             <h2>Pedidos en proceso</h2>
             {contenido}
 
-            {pedidoAbierto && (
-                <div className="admin-tabla-contenedor">
-                    <h2>Detalle del pedido #{pedidoAbierto.id}</h2>
-                    <p>
-                        {pedidoAbierto.usuario ? `${pedidoAbierto.usuario.nombre} (${pedidoAbierto.usuario.email})` : "—"}
-                    </p>
-                    <table className="admin-tabla">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Importe</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {pedidoAbierto.detalles.map((detalle) => (
-                                <tr key={detalle.id}>
-                                    <td>{detalle.producto ? detalle.producto.nombre : "—"}</td>
-                                    <td>{detalle.cantidad}</td>
-                                    <td>${Number(detalle.importe).toFixed(2)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+            {pedidoAbierto && createPortal(
+                <div className="modal-fondo" onClick={cerrarDetalle}>
+                    <div className="modal modal-detalle" onClick={(e) => e.stopPropagation()}>
+                        <p className="modal-titulo">Pedido #{pedidoAbierto.id}</p>
+                        <p>
+                            {pedidoAbierto.usuario ? `${pedidoAbierto.usuario.nombre} (${pedidoAbierto.usuario.email})` : "—"}
+                        </p>
+                        <p>{pedidoAbierto.fecha} · {pedidoAbierto.status}</p>
+                        <div className="admin-tabla-contenedor">
+                            <table className="admin-tabla">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Importe</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {pedidoAbierto.detalles.map((detalle) => (
+                                        <tr key={detalle.id}>
+                                            <td>{detalle.producto ? detalle.producto.nombre : "—"}</td>
+                                            <td>{detalle.cantidad}</td>
+                                            <td>${Number(detalle.importe).toFixed(2)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p><strong>Total: ${Number(pedidoAbierto.total).toFixed(2)}</strong></p>
+                        <div className="modal-acciones">
+                            <button onClick={cerrarDetalle}>Cerrar</button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
             )}
         </section>
     );
