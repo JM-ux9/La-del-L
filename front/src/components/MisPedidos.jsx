@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchGraphQL } from "../services/api";
+import { useDivisa } from "../store/divisa";
 import { suscribirMisPedidosActivos } from "../services/suscripciones";
 import "./MisPedidos.css";
 
@@ -24,6 +25,9 @@ function MisPedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const moneda = useDivisa((estado) => estado.moneda);
+  const tasas = useDivisa((estado) => estado.tasas);
+  const convertir = useDivisa((estado) => estado.convertir);
 
   async function cargarPedidos() {
     setCargando(true);
@@ -103,7 +107,7 @@ function MisPedidos() {
                 </li>
               ))}
             </ul>
-            <p className="pedido-total">Total: ${pedido.total.toFixed(2)}</p>
+            <p className="pedido-total">Total: {convertir(pedido.total).toFixed(2)} {moneda}</p>
           </li>
         ))}
       </ul>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchGraphQL } from "../services/api";
+import { useDivisa } from "../store/divisa";
 import BotonAgregar from "./BotonAgregar.jsx";
 import "./RecomendacionesClima.css";
 
@@ -34,6 +35,9 @@ function RecomendacionesClima() {
   const [grados, setGrados] = useState(null);
   const [mensaje, setMensaje] = useState("");
   const [productos, setProductos] = useState([]);
+  const moneda = useDivisa((estado) => estado.moneda);
+  const tasas = useDivisa((estado) => estado.tasas);
+  const convertir = useDivisa((estado) => estado.convertir);
 
   async function cargarDatos() {
     try {
@@ -77,7 +81,7 @@ function RecomendacionesClima() {
           <div key={producto.id} className="recomendacion">
             <img src={producto.imagen} alt={producto.nombre} />
             <h3>{producto.nombre}</h3>
-            <p>${Number(producto.precio).toFixed(2)}</p>
+            <p>{convertir(producto.precio).toFixed(2)} {moneda}</p>
             <BotonAgregar producto={producto} />
           </div>
         ))}

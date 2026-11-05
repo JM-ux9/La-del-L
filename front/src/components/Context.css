@@ -1,7 +1,33 @@
 .context-banner {
   padding: 0.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.context-banner p {
+  margin: 0;
 }
 
 .context-banner .aurora-text2 {
   background-image: linear-gradient(120deg, #3D2314 0%, #8a6d12 50%, #a4472e 100%);
+}
+
+.selector-divisa-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  color: #3c2415;
+}
+
+.selector-divisa {
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #3c2415;
+  background-color: #f4ede4;
+  color: #3c2415;
+  font-weight: bold;
+  cursor: pointer;
 }
