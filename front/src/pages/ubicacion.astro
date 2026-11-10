@@ -1,0 +1,13 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import MapaCafe from "../components/MapaCafe.jsx";
+import "../components/Ubicacion.css";
+---
+
+<BaseLayout titulo="¿Dónde nos encontramos? — Café del L">
+  <section class="ubicacion">
+    <h1>¿Dónde nos encontramos?</h1>
+    <p>Café del L</p>
+    <MapaCafe client:only />
+  </section>
+</BaseLayout>

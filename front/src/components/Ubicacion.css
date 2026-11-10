@@ -1,0 +1,18 @@
+.ubicacion {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.ubicacion h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  color: #3D2314;
+}
+
+.ubicacion p {
+  font-size: 1.125rem;
+  color: #5A3A24;
+  margin-bottom: 1.5rem;
+}

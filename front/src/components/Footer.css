@@ -5,3 +5,23 @@
   text-align: center;
   padding: 0.5rem;
 }
+
+.footer-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  display: inline-block;
+  margin-top: 0;
+  color: #FFD77A;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
