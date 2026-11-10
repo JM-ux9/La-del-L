@@ -41,6 +41,10 @@ function Login({ onLogin }) {
   function cambiarModo(destino) {
     setModo(destino);
     setError(null);
+    setNombre("");
+    setEmail("");
+    setPassword("");
+    setConfirmar("");
   }
 
   async function iniciarSesion(e) {
@@ -158,10 +162,10 @@ function Login({ onLogin }) {
               <span>Contraseña</span>
               <input
                 type="password"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                minLength={6}
+                minLength={8}
                 required
               />
             </label>
@@ -173,7 +177,7 @@ function Login({ onLogin }) {
                 placeholder="••••••••"
                 value={confirmar}
                 onChange={(e) => setConfirmar(e.target.value)}
-                minLength={6}
+                minLength={8}
                 required
               />
             </label>
