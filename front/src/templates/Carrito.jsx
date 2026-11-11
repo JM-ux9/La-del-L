@@ -1,8 +1,12 @@
 import { useCarrito, calcularTotal } from "../store/carrito";
+import { useDivisa } from "../store/divisa";
 import "./Carrito.css";
 
 function Carrito({ onFinalizarCompra, onVolver }) {
   const { items, quitarDelCarrito, cambiarCantidad } = useCarrito();
+  const moneda = useDivisa((estado) => estado.moneda);
+  const tasas = useDivisa((estado) => estado.tasas);
+  const convertir = useDivisa((estado) => estado.convertir);
   const carritoItems = Array.isArray(items)
     ? items.filter(
         (item) =>
@@ -42,7 +46,7 @@ function Carrito({ onFinalizarCompra, onVolver }) {
             <img src={item.producto.imagen} alt={item.producto.nombre} />
             <div className="carrito-item-info">
               <p className="carrito-item-name">{item.producto.nombre}</p>
-              <p className="carrito-item-price">${Number(item.producto.precio).toFixed(2)}</p>
+              <p className="carrito-item-price">{convertir(item.producto.precio).toFixed(2)} {moneda}</p>
             </div>
 
             <input
@@ -65,7 +69,7 @@ function Carrito({ onFinalizarCompra, onVolver }) {
       <section className="carrito-summary">
         <div>
           <span>Total</span>
-          <strong>${Number(total).toFixed(2)}</strong>
+          <strong>{convertir(total).toFixed(2)} {moneda}</strong>
         </div>
 
         <button className="carrito-submit" onClick={onFinalizarCompra}>Finalizar compra</button>

@@ -1,5 +1,6 @@
 ---
 import BotonAgregar from "./BotonAgregar.jsx";
+import Precio from "./Precio.jsx";
 import "./ProductCard.css";
 
 const { producto } = Astro.props;
@@ -10,7 +11,7 @@ const precio = Number(producto.precio);
   <a href={`/products/${producto.id}`}>
     <img src={producto.imagen} alt={producto.nombre} />
     <h3>{producto.nombre}</h3>
-    <p>{Number.isFinite(precio) ? `$${precio.toFixed(2)}` : "Precio no disponible"}</p>
+    <p>{Number.isFinite(precio) ? <Precio client:load valor={precio} /> : "Precio no disponible"}</p>
   </a>
   <BotonAgregar client:visible producto={producto} />
 </div>

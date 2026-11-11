@@ -24,7 +24,7 @@ const data = await fetchGraphQL(`
 
 <BaseLayout titulo="Café del L">
   <Hero />
-  <Context />
+  <Context client:load />
   <div class="inicio-contenido">
     <SideBar />
     <Main productos={data.productos} />

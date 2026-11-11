@@ -14,6 +14,8 @@ from starlette.concurrency import run_in_threadpool
 from jwt_service import usuario_desde_header
 from mercadopago_service import crear_orden, obtener_orden, validar_firma_webhook
 
+from brevo_service import enviar_correo_pedido_generado, crear_html_new_pedido
+
 load_dotenv()
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/v1")
@@ -151,10 +153,33 @@ async def crear_orden_endpoint(
 ):
     pool = request.app.state.pool
     async with pool.acquire() as conn:
-        pedido = await conn.fetchrow(
-            "SELECT id, total, usuario_id, status FROM pedido WHERE id = $1",
+        pedido_data = await conn.fetch(
+            """
+            SELECT
+                ped.id AS id,
+                ped.total,
+                ped.usuario_id,
+                ped.status,
+                dp.id AS detalle_id,
+                dp.cantidad,
+                dp.importe,
+                prod.id AS producto_id,
+                prod.nombre AS producto_nombre,
+                usr.nombre AS usuario_nombre,
+                usr.email AS usuario_email
+            FROM pedido AS ped
+            INNER JOIN detalle_pedido AS dp
+                ON dp.pedido_id = ped.id
+            INNER JOIN producto AS prod
+                ON prod.id = dp.producto_id
+            INNER JOIN usuario AS usr
+                ON usr.id = ped.usuario_id
+            WHERE ped.id = $1;
+            """,
             datos.pedido_id,
         )
+        pedido = pedido_data[0] if pedido_data else None
+        
     if pedido is None or pedido["usuario_id"] != usuario["usuario_id"]:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     if pedido["status"] == "PAGADO":
@@ -218,6 +243,7 @@ async def crear_orden_endpoint(
         )
 
     if orden["status"] == "processed":
+        await enviar_correo_pedido_generado(pedido["usuario_email"], pedido["usuario_nombre"], crear_html_new_pedido(pedido_data))
         await _marcar_pedido(pool, pedido["id"], "PAGADO")
 
     return {

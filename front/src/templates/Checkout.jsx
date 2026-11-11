@@ -6,6 +6,7 @@ import {
   obtenerMercadoPago,
 } from "../services/payments";
 import { useCarrito, calcularTotal } from "../store/carrito";
+import { useDivisa } from "../store/divisa";
 import "./Checkout.css";
 
 const MUTATION_CREAR_PEDIDO = `
@@ -32,6 +33,9 @@ function Checkout({ onPedidoCreado, onVolver }) {
       )
     : [];
   const total = calcularTotal(carritoItems);
+  const moneda = useDivisa((estado) => estado.moneda);
+  const tasas = useDivisa((estado) => estado.tasas);
+  const convertir = useDivisa((estado) => estado.convertir);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [mercadoPago, setMercadoPago] = useState(null);
@@ -328,7 +332,7 @@ function Checkout({ onPedidoCreado, onVolver }) {
               ×
             </button>
             <h2 id="checkout-modal-title">Datos de pago</h2>
-            <p className="checkout-modal-total">Total a pagar: ${Number(total).toFixed(2)}</p>
+            <p className="checkout-modal-total">Total a pagar: {convertir(total).toFixed(2)} {moneda}</p>
 
             {errorSdk && (
               <p className="checkout-error" role="alert">

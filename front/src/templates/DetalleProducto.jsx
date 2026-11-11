@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchGraphQL } from "../services/api";
 import { useCarrito } from "../context/CarritoContext";
+import { useDivisa } from "../store/divisa";
 import DetalleProductoSkeleton from "../components/DetalleProductoSkeleton";
 import "./DetalleProducto.css";
 
@@ -22,6 +23,9 @@ const QUERY_PRODUCTO = `
 
 function DetalleProducto({ productoId, onAgregado, onVolver }) {
   const { agregarAlCarrito } = useCarrito();
+  const moneda = useDivisa((estado) => estado.moneda);
+  const tasas = useDivisa((estado) => estado.tasas);
+  const convertir = useDivisa((estado) => estado.convertir);
   const [producto, setProducto] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -74,7 +78,7 @@ function DetalleProducto({ productoId, onAgregado, onVolver }) {
         <div className="producto-info">
           <h2><span className="aurora-text">{producto.nombre}</span></h2>
           <p className="producto-category">Categoría: {producto.categoria.nombre}</p>
-          <p className="producto-price">${Number(producto.precio).toFixed(2)}</p>
+          <p className="producto-price">{convertir(producto.precio).toFixed(2)} {moneda}</p>
 
           <label className="producto-quantity">
             Cantidad
