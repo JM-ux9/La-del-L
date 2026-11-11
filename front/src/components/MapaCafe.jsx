@@ -32,7 +32,7 @@ export default function MapaCafe() {
             lon: parseFloat(data[0].lon),
           });
         } else {
-          setError("No se encontraron coordenadas para esta dirección");
+          setError("No se encontraron coordenadas para esta direcciÃ³n");
         }
       } catch (err) {
         setError(err.message);
@@ -63,7 +63,7 @@ export default function MapaCafe() {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Marker position={[coords.lat, coords.lon]} icon={cafeIcon}>
-        <Popup>Café del L</Popup>
+        <Popup>CafÃ© del L</Popup>
       </Marker>
     </MapContainer>
   );

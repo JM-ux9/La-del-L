@@ -1,10 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Hero from "../components/Hero.jsx";
+import Hero from "../components/Hero.astro";
 import Context from "../components/Context.jsx";
 import SideBar from "../components/SideBar.astro";
 import Main from "../components/Main.astro";
 import { fetchGraphQL } from "../services/api";
+
 
 const data = await fetchGraphQL(`
   query {
@@ -24,7 +25,7 @@ const data = await fetchGraphQL(`
 
 <BaseLayout titulo="Café del L">
   <Hero />
-  <Context client:load />
+  <Context client:idle />
   <div class="inicio-contenido">
     <SideBar />
     <Main productos={data.productos} />

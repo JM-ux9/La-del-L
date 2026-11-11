@@ -9,9 +9,16 @@ const precio = Number(producto.precio);
 
 <div class="product-card">
   <a href={`/products/${producto.id}`}>
-    <img src={producto.imagen} alt={producto.nombre} />
+    <img
+      src={producto.imagen}
+      alt={producto.nombre}
+      width="300"
+      height="140"
+      loading="lazy"
+      decoding="async"
+    />
     <h3>{producto.nombre}</h3>
-    <p>{Number.isFinite(precio) ? <Precio client:load valor={precio} /> : "Precio no disponible"}</p>
+    <p>{Number.isFinite(precio) ? <span class="precio" data-mxn={precio}>{precio.toFixed(2)} MXN</span> : "Precio no disponible"}</p>
   </a>
   <BotonAgregar client:visible producto={producto} />
 </div>
