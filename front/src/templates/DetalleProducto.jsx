@@ -3,6 +3,7 @@ import { fetchGraphQL } from "../services/api";
 import { useCarrito } from "../context/CarritoContext";
 import { useDivisa } from "../store/divisa";
 import DetalleProductoSkeleton from "../components/DetalleProductoSkeleton";
+import { Image } from 'astro:assets';
 import "./DetalleProducto.css";
 
 const QUERY_PRODUCTO = `
@@ -73,7 +74,7 @@ function DetalleProducto({ productoId, onAgregado, onVolver }) {
       <button className="producto-back" onClick={onVolver}>← Ver más</button>
       <article className="producto-detail">
         <div className="producto-image-wrap">
-          <img src={producto.imagen} alt={producto.nombre} />
+          <Image src={producto.imagen} alt={producto.nombre} />
         </div>
         <div className="producto-info">
           <h2><span className="aurora-text">{producto.nombre}</span></h2>

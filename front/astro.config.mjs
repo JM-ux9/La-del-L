@@ -23,5 +23,8 @@ export default defineConfig({
   ],
   build: {
     inlineStylesheets: 'always'
-  }
+  },
+  image: {
+    domains: ["https://uofaxfmbilrtjorblprt.supabase.co"],
+  },
 });

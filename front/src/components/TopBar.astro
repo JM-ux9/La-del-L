@@ -4,6 +4,7 @@ import BotonCerrarSesion from "./BotonCerrarSesion.jsx";
 import BotonDashboard from "./BotonDashboard.jsx";
 import BotonPerfil from "./BotonPerfil.jsx";
 import "./TopBar.css";
+import { Image } from 'astro:assets';
 ---
 
 <header class="topbar">
@@ -24,12 +25,13 @@ import "./TopBar.css";
     <BotonDashboard client:idle />
     <BotonCerrarSesion client:idle />
     <a href="/">
-      <img
+      <Image
         src="/images/logo.jpeg"
         width="40"
         height="40"
         alt="Logo"
         class="topbar-logo"
+        loading="eager"
       />
     </a>
   </div>
