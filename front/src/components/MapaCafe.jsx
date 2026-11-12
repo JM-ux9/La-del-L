@@ -32,7 +32,7 @@ export default function MapaCafe() {
             lon: parseFloat(data[0].lon),
           });
         } else {
-          setError("No se encontraron coordenadas para esta direccion");
+          setError("No se encontraron coordenadas para esta dirección");
         }
       } catch (err) {
         setError(err.message);

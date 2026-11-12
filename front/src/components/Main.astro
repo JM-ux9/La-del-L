@@ -21,6 +21,19 @@ const { productos } = Astro.props as { productos: Producto[] };
 </main>
 
 <script>
+
+  import { useDivisa } from "../store/divisa";
+
+  function pintarPrecios() {
+    const estado = useDivisa.getState();
+    document.querySelectorAll<HTMLElement>(".precio[data-mxn]").forEach((el) => {
+      el.textContent = estado.formatear(el.dataset.mxn);
+    });
+  }
+
+  pintarPrecios();
+  useDivisa.subscribe(pintarPrecios);
+
   const busqueda = document.getElementById("busqueda");
   const catalogo = document.querySelector(".catalogo");
 

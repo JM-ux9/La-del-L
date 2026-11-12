@@ -13,16 +13,16 @@ import "./TopBar.css";
         >L</span
       >
     </h1>
-    <ContadorCarrito client:load />
+    <ContadorCarrito client:idle />
     <a href="/mis-pedidos" class="topbar-pedidos">Mis pedidos</a>
   </div>
   <div class="topbar-right">
     <div class="topbar-busqueda">
       <input type="text" placeholder="Buscar productos..." id="busqueda" />
     </div>
-    <BotonPerfil client:load />
-    <BotonDashboard client:load />
-    <BotonCerrarSesion client:load />
+    <BotonPerfil client:idle />
+    <BotonDashboard client:idle />
+    <BotonCerrarSesion client:idle />
     <a href="/">
       <img
         src="/images/logo.jpeg"

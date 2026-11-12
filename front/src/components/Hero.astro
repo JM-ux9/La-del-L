@@ -1,0 +1,18 @@
+---
+import { Picture } from "astro:assets";
+import bannerImg from "../assets/banner.jpg";
+import "./Hero.css";
+---
+
+<section class="hero">
+  <Picture
+    src={bannerImg}
+    alt="Banner de la cafetería"
+    formats={["avif", "webp"]}
+    widths={[480, 800, 1200, 1600]}
+    sizes="(max-width: 1600px) 100vw, 1600px"
+    loading="eager"
+    fetchpriority="high"
+  />
+  <h2 style="font-size: 2rem">Bienvenido a la <span class="aurora-text">Cafe del L</span></h2>
+</section>
