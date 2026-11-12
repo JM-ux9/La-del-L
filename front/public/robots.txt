@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /carrito/
+Disallow: /checkout/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /mis-pedidos/
+Disallow: /pago-error/
+Disallow: /perfil/
+Sitemap: https://la-del-l.netlify.app/sitemap-0.xml

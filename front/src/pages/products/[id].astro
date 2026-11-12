@@ -42,9 +42,35 @@ export async function getStaticPaths() {
 
 const { producto } = Astro.props as { producto: Producto };
 const precio = Number(producto.precio);
+const siteUrl = Astro.site ?? new URL("https://la-del-l.netlify.app");
+const productoUrl = new URL(`/products/${producto.id}/`, siteUrl).toString();
+const productJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: producto.nombre,
+  ...(producto.imagen && { image: new URL(producto.imagen, siteUrl).toString() }),
+  category: producto.categoria.nombre,
+  url: productoUrl,
+  ...(Number.isFinite(precio) &&
+    precio >= 0 && {
+      offers: {
+        "@type": "Offer",
+        url: productoUrl,
+        priceCurrency: "MXN",
+        price: precio,
+        availability: `https://schema.org/${producto.disponible ? "InStock" : "OutOfStock"}`,
+        itemCondition: "https://schema.org/NewCondition",
+        seller: {
+          "@type": "Organization",
+          name: "Café del L",
+        },
+      },
+    }),
+}).replace(/</g, "\\u003c");
 ---
 
 <BaseLayout titulo={`${producto.nombre} | Café del L`}>
+  <script type="application/ld+json" set:html={productJsonLd} />
   <section class="detalle-producto">
     <div class="detalle-producto-inner">
       <a class="detalle-producto-back" href={`/categorias/${producto.categoria.id}`}>← Volver</a>
