@@ -85,3 +85,40 @@
   color: #8a1c1c;
   font-weight: 600;
 }
+
+.admin-imagen {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-imagen input {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-subir {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-radius: 6px;
+  background: #C8D6AF;
+  color: #3D2314;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.admin-entrega {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}

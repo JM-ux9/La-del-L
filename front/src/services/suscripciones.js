@@ -100,6 +100,7 @@ const SUB_PEDIDOS_EN_VIVO = `
       fecha
       total
       status
+      horaEntrega
       usuario {
         nombre
         email
@@ -123,6 +124,7 @@ const SUB_MIS_PEDIDOS_ACTIVOS = `
       fecha
       total
       status
+      horaEntrega
       detalles {
         cantidad
         producto {

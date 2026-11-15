@@ -22,3 +22,6 @@ brevo-python
 
 #MCP
 mcp[cli]
+
+#imagenes
+python-multipart

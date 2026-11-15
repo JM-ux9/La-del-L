@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchGraphQL } from "../services/api";
+import { subirImagen } from "../services/imagenes";
 
 const QUERY_DATOS = `
   query {
@@ -67,6 +68,7 @@ function PaginaAdminProductos() {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
+  const [subiendo, setSubiendo] = useState(false);
 
   async function cargarDatos() {
     setCargando(true);
@@ -93,6 +95,24 @@ function PaginaAdminProductos() {
 
   function cambiarCampo(campo, valor) {
     setForm({ ...form, [campo]: valor });
+  }
+
+  async function seleccionarArchivo(e) {
+    const archivo = e.target.files[0];
+    if (!archivo) {
+      return;
+    }
+    setSubiendo(true);
+    setError(null);
+    try {
+      const url = await subirImagen(archivo);
+      cambiarCampo("imagen", url);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubiendo(false);
+      e.target.value = "";
+    }
   }
 
   function editar(producto) {
@@ -226,9 +246,22 @@ function PaginaAdminProductos() {
             ))}
           </select>
         </label>
-        <label>
+                <label>
           URL de imagen
-          <input value={form.imagen} onChange={(e) => cambiarCampo("imagen", e.target.value)} />
+          <div className="admin-imagen">
+            <input value={form.imagen} onChange={(e) => cambiarCampo("imagen", e.target.value)} />
+            <label className="admin-subir">
+              {subiendo ? "Subiendo..." : "Subir"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={seleccionarArchivo}
+                disabled={subiendo}
+                hidden
+              />
+            </label>
+          </div>
+          {form.imagen && <img src={form.imagen} alt="Vista previa" className="admin-preview" />}
         </label>
         <label>
           Disponible
@@ -239,7 +272,7 @@ function PaginaAdminProductos() {
           />
         </label>
         <div className="admin-acciones">
-          <button onClick={guardar} disabled={guardando}>
+          <button onClick={guardar} disabled={guardando || subiendo}>
             {guardando ? "Guardando..." : editandoId === null ? "Crear" : "Guardar cambios"}
           </button>
           {editandoId !== null && <button onClick={cancelar}>Cancelar</button>}

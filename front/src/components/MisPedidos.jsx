@@ -11,6 +11,7 @@ const QUERY_MIS_PEDIDOS = `
       fecha
       total
       status
+      horaEntrega
       detalles {
         cantidad
         producto {
@@ -100,6 +101,12 @@ function MisPedidos() {
               </span>
             </div>
             <p className="pedido-fecha">{pedido.fecha}</p>
+            {pedido.status === "EN PROCESO" && (
+              <p className="pedido-entrega">Hora estimada de entrega: {pedido.horaEntrega}</p>
+            )}
+            {pedido.status === "LISTO" && (
+              <p className="pedido-entrega">¡Tu pedido está listo para recoger!</p>
+            )}
             <ul className="pedido-detalles">
               {pedido.detalles.map((detalle, i) => (
                 <li key={i}>

@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+from routers.imagenes import router as imagenes_router
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
@@ -76,4 +77,5 @@ graphql_router = GraphQLRouter(
 )
 
 app.include_router(pagos_router)
+app.include_router(imagenes_router)
 app.include_router(graphql_router, prefix="/graphql")
