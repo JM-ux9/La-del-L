@@ -11,6 +11,7 @@ const QUERY_DATOS = `
       fecha
       total
       status
+      horaEntrega
       usuario {
         nombre
         email
@@ -28,8 +29,8 @@ const QUERY_DATOS = `
 `;
 
 const MUTATION_EN_PROCESO = `
-  mutation ($id: Int!) {
-    setInProgress(id: $id)
+  mutation ($id: Int!, $minutos: Int) {
+    setInProgress(id: $id, minutos: $minutos)
   }
 `;
 
@@ -51,7 +52,6 @@ const MUTATION_CANCELADO = `
   }
 `;
 
-
 function leerUsuario() {
   try {
     return JSON.parse(localStorage.getItem("usuario") || "null");
@@ -65,6 +65,7 @@ function PaginaAdminPedidos() {
   const [abiertoId, setAbiertoId] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [minutos, setMinutos] = useState({});
 
   async function cargarDatos() {
     setCargando(true);
@@ -76,6 +77,15 @@ function PaginaAdminPedidos() {
       setError(err.message);
     } finally {
       setCargando(false);
+    }
+  }
+
+  async function recargarDatos() {
+    try {
+      const data = await fetchGraphQL(QUERY_DATOS);
+      setPedidos(data.pedidosPagados);
+    } catch (err) {
+      setError(err.message);
     }
   }
 
@@ -128,8 +138,11 @@ function PaginaAdminPedidos() {
     }
     setError(null);
     try {
-      await fetchGraphQL(mutation, { id: pedido.id });
-      await cargarDatos();
+      await fetchGraphQL(mutation, {
+        id: pedido.id,
+        minutos: minutos[pedido.id] ? Number(minutos[pedido.id]) : null,
+      });
+      await recargarDatos();
     } catch (err) {
       setError(err.message);
     }
@@ -139,6 +152,15 @@ function PaginaAdminPedidos() {
     if (pedido.status === "PAGADO") {
       return (
         <>
+          <select
+            value={minutos[pedido.id] || ""}
+            onChange={(e) => setMinutos({ ...minutos, [pedido.id]: e.target.value })}
+          >
+            <option value="">15 min (por defecto)</option>
+            <option value="20">20 min</option>
+            <option value="25">25 min</option>
+            <option value="30">30 min</option>
+          </select>
           <button onClick={() => cambiarStatus(pedido, MUTATION_EN_PROCESO, "EN PROCESO")}>
             En proceso
           </button>
@@ -180,7 +202,7 @@ function PaginaAdminPedidos() {
     }
   }
 
-  const pedidoAbierto = pedidos.find((pedido) => pedido.id === abiertoId);
+  const pedidoAbierto = (pedidos || []).find((pedido) => pedido.id === abiertoId);
 
   let contenido;
   if (cargando) {
@@ -238,6 +260,7 @@ function PaginaAdminPedidos() {
               {pedidoAbierto.usuario ? `${pedidoAbierto.usuario.nombre} (${pedidoAbierto.usuario.email})` : "—"}
             </p>
             <p>{pedidoAbierto.fecha} · {pedidoAbierto.status}</p>
+            <p>Entrega: {pedidoAbierto.horaEntrega}</p>
             <div className="admin-tabla-contenedor">
               <table className="admin-tabla">
                 <thead>

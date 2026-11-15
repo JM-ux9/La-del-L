@@ -35,6 +35,7 @@ class Pedido:
     status: str
     usuario_id: strawberry.Private[int]
     fecha_entrega: Optional[str] = None
+    hora_entrega: Optional[str] = None
 
     @strawberry.field
     async def usuario(
@@ -70,8 +71,8 @@ async def pedidos_by_cliente(info: strawberry.Info, id: int) -> List[Pedido]:
         rows = await conn.fetch(
             "SELECT id, "
             "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
-            "total, status, usuario_id, "
-            "to_char(fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega "
+            "to_char(hora_entrega AT TIME ZONE 'America/Mexico_City', 'HH24:MI') AS hora_entrega, "
+            "total, status, usuario_id "
             "FROM pedido WHERE usuario_id = $1 "
             "ORDER BY id DESC",
             id,
@@ -134,6 +135,7 @@ class PedidoQueries:
         async with pool.acquire() as conn:
             rows = await conn.fetch(
                 "SELECT id, "
+                "to_char(hora_entrega AT TIME ZONE 'America/Mexico_City', 'HH24:MI') AS hora_entrega, "
                 "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
                 "total, status, usuario_id, "
                 "to_char(fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega "
@@ -211,8 +213,8 @@ class PedidoQueries:
             rows = await conn.fetch(
                 "SELECT id, "
                 "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
-                "total, status, usuario_id, "
-                "to_char(fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega "
+                "to_char(hora_entrega AT TIME ZONE 'America/Mexico_City', 'HH24:MI') AS hora_entrega, "
+                "total, status, usuario_id "
                 "FROM pedido WHERE status = 'EN PROCESO' "
                 "ORDER BY id DESC LIMIT $1 OFFSET $2",
                 limite or 10, desde or 0,
@@ -250,18 +252,38 @@ class PedidoQueries:
 @strawberry.type
 class PedidoMutations:
     @strawberry.mutation
-    async def set_in_progress(self, info: strawberry.Info, id: int, minutos: int) -> bool:
+    async def set_in_progress(self, info: strawberry.Info, id: int, minutos: Optional[int] = None) -> bool:
         requerir_admin(info)
         pool = info.context["pool"]
-        status_update = await update_pedido(info, id, "EN PROCESO")
+
+        if minutos is None:
+            minutos = 15
+        elif minutos not in (15, 20, 25, 30):
+            raise Exception("El tiempo de entrega debe ser 15, 20, 25 o 30 minutos")
+
         async with pool.acquire() as conn:
-            await conn.execute(
-                "UPDATE pedido SET fecha_entrega = NOW() + ($1 * INTERVAL '1 minute') WHERE id = $2", minutos, id
+            row = await conn.execute(
+                "UPDATE pedido SET hora_entrega = now() + make_interval(mins => $1) WHERE id = $2",
+                minutos, id
             )
-        dict_data = await get_email_order_info(info, id)
-        root_values = dict_data[0] if dict_data else None
-        await enviar_correo_status_pedido(root_values["usuario_email"], root_values["usuario_nombre"], crear_html_pedido_changed_status(dict_data), "EN PROCESO")
-        return status_update
+
+        return await update_pedido(info, id, "EN PROCESO")
+
+    @strawberry.mutation
+    async def set_entrega(self, info: strawberry.Info, id: int, minutos: int) -> bool:
+        requerir_admin(info)
+        pool = info.context["pool"]
+
+        if minutos not in (15, 20, 25, 30):
+            raise Exception("El tiempo de entrega debe ser 15, 20, 25 o 30 minutos")
+
+        async with pool.acquire() as conn:
+            row = await conn.execute(
+                "UPDATE pedido SET hora_entrega = now() + make_interval(mins => $1) WHERE id = $2",
+                minutos, id
+            )
+
+        return True
 
     @strawberry.mutation
     async def set_ready(self, info: strawberry.Info, id: int) -> bool:

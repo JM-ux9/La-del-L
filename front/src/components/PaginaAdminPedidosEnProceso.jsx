@@ -10,6 +10,7 @@ const QUERY_DATOS = `
       fecha
       total
       status
+      horaEntrega
       usuario {
         nombre
         email
@@ -160,6 +161,7 @@ function PaginaAdminPedidosEnProceso() {
                             <th>Cliente</th>
                             <th>Total</th>
                             <th>Status</th>
+                            <th>Hora de Entrega</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -171,6 +173,7 @@ function PaginaAdminPedidosEnProceso() {
                                 <td>{pedido.usuario ? pedido.usuario.nombre : "—"}</td>
                                 <td>${Number(pedido.total).toFixed(2)}</td>
                                 <td>{pedido.status}</td>
+                                <td>{pedido.horaEntrega || "—"}</td>
                                 <td>
                                     <div className="admin-acciones">
                                         <button onClick={() => verDetalle(pedido)}>Ver</button>
@@ -200,6 +203,7 @@ function PaginaAdminPedidosEnProceso() {
                             {pedidoAbierto.usuario ? `${pedidoAbierto.usuario.nombre} (${pedidoAbierto.usuario.email})` : "—"}
                         </p>
                         <p>{pedidoAbierto.fecha} · {pedidoAbierto.status}</p>
+                        <p>Entrega: {pedidoAbierto.horaEntrega}</p>
                         <div className="admin-tabla-contenedor">
                             <table className="admin-tabla">
                                 <thead>

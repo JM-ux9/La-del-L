@@ -72,6 +72,7 @@ class PedidoSubscriptions:
                 filas = await conn.fetch(
                     "SELECT id, "
                     "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                    "to_char(hora_entrega AT TIME ZONE 'America/Mexico_City', 'HH24:MI') AS hora_entrega, "
                     "total, status, usuario_id "
                     "FROM pedido "
                     "WHERE usuario_id = $1 AND status NOT IN ('CANCELADO', 'RECHAZADO', 'LISTO') "
@@ -87,6 +88,7 @@ class PedidoSubscriptions:
                     fila = await conn.fetchrow(
                         "SELECT id, "
                         "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                        "to_char(hora_entrega AT TIME ZONE 'America/Mexico_City', 'HH24:MI') AS hora_entrega, "
                         "total, status, usuario_id "
                         "FROM pedido WHERE id = $1 AND usuario_id = $2",
                         pedido_id,
