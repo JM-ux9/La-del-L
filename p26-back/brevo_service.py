@@ -197,7 +197,7 @@ def crear_html_pedido_changed_status(dict_data) -> str:
     pedido_id = root_order["id"]
     status = root_order["status"]
     total = root_order["total"]
-    fecha_entrega = root_order["fecha_entrega"] or "Sin fecha de entrega"
+    fecha_entrega = root_order["hora_entrega"] or "Sin fecha de entrega"
 
     detalles_html = []
 
@@ -236,7 +236,7 @@ def crear_html_pedido_changed_status(dict_data) -> str:
 
                         {"<p style='margin:0 0 20px; color:#b23b3b; font-size:14px;'>Lamentamos los inconvenientes :(</p>" if status == "CANCELADO" else ""}
 
-                        {f"<p style='margin:0 0 20px; color:#555555; font-size:14px;'>Fecha y hora de entrega: {fecha_entrega}</p>" if fecha_entrega != "Sin fecha de entrega" and status == "EN PROCESO" else ""}
+                        {f"<p style='margin:0 0 20px; color:#555555; font-size:14px;'>Fecha y hora de entrega: {fecha_entrega}</p>" if status == "EN PROCESO" else ""}
 
                         <h4 style="margin:0 0 12px; color:#3c2415; font-size:15px;">Pedido:</h4>
                         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-bottom:20px;">
