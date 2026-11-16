@@ -87,6 +87,11 @@ Crear un archivo `.env` en la raíz de `p26-back/`:
 - `MERCADOPAGO_ACCESS_TOKEN`: Access Token de Mercado Pago usado por el SDK del backend.
 - `BREVO-API-KEY`: API key para enviar correos transaccionales con Brevo.
 - `BREVO-MCP-API-KEY`: API key de Brevo para el servidor MCP.
+- `SUPABASE_URL`: URL base del proyecto Supabase (por ejemplo, `https://<project-ref>.supabase.co`), necesaria para subir imágenes de productos. No incluir `/rest/v1`.
+- `SUPABASE_SERVICE_KEY`: clave secreta de servidor de Supabase (service role); no debe ponerse en el frontend.
+- `SUPABASE_BUCKET`: nombre del bucket de Storage existente. Si se omite, se usa `imagenes-productos`.
+
+El bucket debe ser público porque la API devuelve URLs públicas para las imágenes. Después de cambiar el `.env`, reiniciar el backend.
 
 ### Ejecución
 
@@ -102,5 +107,6 @@ El backend estará disponible en `http://127.0.0.1:8000`.
 | `POST /v1/orders` | Crear orden de pago |
 | `GET /v1/orders/{pedido_id}/status` | Consultar estado de un pedido |
 | `POST /v1/mercadopago/webhook` | Webhook de Mercado Pago |
+| `POST /v1/imagenes` | Subir imagen de producto a Supabase Storage |
 
 ---

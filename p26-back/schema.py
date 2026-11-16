@@ -1,4 +1,5 @@
 import strawberry
+from strawberry.schema.config import StrawberryConfig
 from resolvers.producto import ProductoQueries, ProductoMutations
 from resolvers.categoria import CategoriaQueries
 from resolvers.pedido import PedidoQueries, PedidoMutations
@@ -19,4 +20,9 @@ class Mutation(ProductoMutations, PedidoMutations, UsuarioMutations):
 class Subscription(PedidoSubscriptions):
     pass
 
-schema = strawberry.Schema(query=Query, mutation=Mutation, subscription=Subscription)
+schema = strawberry.Schema(
+    query=Query,
+    mutation=Mutation,
+    subscription=Subscription,
+    config=StrawberryConfig(auto_camel_case=True),
+)

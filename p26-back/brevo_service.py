@@ -197,7 +197,7 @@ def crear_html_pedido_changed_status(dict_data) -> str:
     pedido_id = root_order["id"]
     status = root_order["status"]
     total = root_order["total"]
-    fecha_entrega = root_order["fecha_entrega"] or "Sin fecha de entrega"
+    fecha_entrega = root_order["hora_entrega"] or "Sin fecha de entrega"
 
     detalles_html = []
 

@@ -31,6 +31,12 @@
   margin: 0;
   font-size: 1.4rem;
   white-space: nowrap;
+  transform-origin: left center;
+  transition: transform 0.2s ease;
+}
+
+.topbar h1:hover {
+  transform: scale(1.05);
 }
 
 .topbar input {
@@ -101,7 +107,7 @@
 }
 
 .topbar-logout:hover svg {
-  transform: translateX(2px);
+  transform: scale(1.15);
 }
 
 button {
@@ -120,16 +126,34 @@ button:hover{
   transform: scale(1.1);
 }
 
+.topbar-left button {
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.topbar-left button:hover {
+  transform: scale(1.12);
+}
+
 .topbar-pedidos {
+  display: inline-block;
   text-decoration: none;
   color: #4c3c17;
   font-weight: 700;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   background: rgba(237, 223, 190, 0.866);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 .topbar-pedidos:hover {
     transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar h1,
+  .topbar-left button,
+  .topbar-pedidos {
+    transition: none;
+  }
 }
 
 .topbar-dashboard {
@@ -169,7 +193,7 @@ button:hover{
 }
 
 .topbar-dashboard:hover svg {
-  transform: translateX(2px);
+  transform: scale(1.15);
 }
 
 .topbar-perfil {
@@ -209,7 +233,7 @@ button:hover{
 }
 
 .topbar-perfil:hover svg {
-  transform: translateX(2px);
+  transform: scale(1.15);
 }
 
 @media (max-width: 720px) {

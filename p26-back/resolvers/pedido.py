@@ -34,7 +34,6 @@ class Pedido:
     total: float
     status: str
     usuario_id: strawberry.Private[int]
-    fecha_entrega: Optional[str] = None
     hora_entrega: Optional[str] = None
 
     @strawberry.field
@@ -83,7 +82,7 @@ async def update_pedido(info: strawberry.Info, id: int, new_stat: str) -> bool:
     pool = info.context["pool"]
     async with pool.acquire() as conn:
         usuario_id = await conn.fetchval(
-            f"UPDATE pedido SET status = $1{", fecha_entrega = NULL" if new_stat == "CANCELADO" else ""} WHERE id = $2 RETURNING usuario_id",
+            f"UPDATE pedido SET status = $1{", hora_entrega = NULL" if new_stat == "CANCELADO" else ""} WHERE id = $2 RETURNING usuario_id",
             new_stat,
             id,
         )
@@ -105,7 +104,7 @@ async def get_email_order_info(info: strawberry.Info, id: int):
                 ped.total,
                 ped.usuario_id,
                 ped.status,
-                to_char(ped.fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega,
+                to_char(ped.hora_entrega AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS hora_entrega,
                 dp.id AS detalle_id,
                 dp.cantidad,
                 dp.importe,
@@ -136,9 +135,8 @@ class PedidoQueries:
             rows = await conn.fetch(
                 "SELECT id, "
                 "to_char(hora_entrega AT TIME ZONE 'America/Mexico_City', 'HH24:MI') AS hora_entrega, "
-                "to_char(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
-                "total, status, usuario_id, "
-                "to_char(fecha_entrega AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha_entrega "
+                "to_char(fecha AT TIME ZONE 'America/Mexico_City', 'DD/MM/YYYY HH24:MI') AS fecha, "
+                "total, status, usuario_id "
                 "FROM pedido WHERE status = 'PAGADO' "
                 "ORDER BY id DESC LIMIT $1 OFFSET $2",
                 limite or 10, desde or 0,
@@ -267,7 +265,11 @@ class PedidoMutations:
                 minutos, id
             )
 
-        return await update_pedido(info, id, "EN PROCESO")
+        status_update = await update_pedido(info, id, "EN PROCESO")
+        dict_data = await get_email_order_info(info, id)
+        root_values = dict_data[0] if dict_data else None
+        await enviar_correo_status_pedido(root_values["usuario_email"], root_values["usuario_nombre"], crear_html_pedido_changed_status(dict_data), "EN PROCESO")
+        return status_update
 
     @strawberry.mutation
     async def set_entrega(self, info: strawberry.Info, id: int, minutos: int) -> bool:

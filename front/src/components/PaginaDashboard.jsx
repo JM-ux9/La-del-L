@@ -48,6 +48,7 @@ function PaginaDashboard() {
   const [productos, setProductos] = useState([]);
   const [ventas, setVentas] = useState([]);
   const [categorias, setCategorias] = useState([]);
+  const [intervalo, setIntervalo] = useState("semana");
 
   async function cargarDatos() {
     setCargando(true);
@@ -56,8 +57,11 @@ function PaginaDashboard() {
       const productosData = await fetchGraphQL(QUERY_PRODUCTOS);
       setProductos(productosData.productosMasVendidos || []);
 
-      const ventasData = await fetchGraphQL(QUERY_VENTAS);
-      setVentas(ventasData.ventasSemana || []);
+      const ventasQuery = intervalo === "mes"
+        ? `query { ventasMes { fecha total pedidos } }`
+        : `query { ventasSemana { fecha total pedidos } }`;
+      const ventasData = await fetchGraphQL(ventasQuery);
+      setVentas(intervalo === "mes" ? (ventasData.ventasMes || []) : (ventasData.ventasSemana || []));
 
       const categoriasData = await fetchGraphQL(QUERY_CATEGORIAS);
       setCategorias(categoriasData.categoriasMasVendidas || []);
@@ -70,7 +74,7 @@ function PaginaDashboard() {
 
   useEffect(() => {
     cargarDatos();
-  }, []);
+  }, [intervalo]);
 
   const valorMaximo = (items, campo) => {
     if (items.length === 0) return 1;
@@ -78,6 +82,11 @@ function PaginaDashboard() {
   };
 
   const anchoBarra = (valor, maximo) => {
+    if (maximo === 0) return 0;
+    return (valor / maximo) * 100;
+  };
+
+  const altoBarra = (valor, maximo) => {
     if (maximo === 0) return 0;
     return (valor / maximo) * 100;
   };
@@ -168,25 +177,69 @@ function PaginaDashboard() {
         </div>
         <div className="chart-section">
           <h3>Ventas por intervalo de tiempo</h3>
-          <div className="chart-bars">
-            {ventas.length === 0 ? (
-              <p className="chart-empty">Sin datos</p>
-            ) : (
-              ventas.map((venta) => (
-                <div className="chart-bar" key={venta.fecha}>
-                  <span className="chart-label">{venta.fecha}</span>
-                  <div className="chart-bar-body">
+          <div className="intervalo-selector">
+            <button
+              className={`intervalo-btn ${intervalo === "semana" ? "activo" : ""}`}
+              onClick={() => setIntervalo("semana")}
+            >
+              Semana
+            </button>
+            <button
+              className={`intervalo-btn ${intervalo === "mes" ? "activo" : ""}`}
+              onClick={() => setIntervalo("mes")}
+            >
+              Mes
+            </button>
+          </div>
+          {intervalo === "mes" ? (
+            <div className="chart-vertical-wrapper">
+              <div className="chart-vertical-container">
+              {ventas.length === 0 ? (
+                <p className="chart-empty">Sin datos</p>
+              ) : (
+                ventas.map((venta, index) => (
+                  <div className="chart-vertical-bar" key={venta.fecha}>
+                  <div className="chart-vertical-body">
                     <div
-                      className="chart-bar-fill"
-                      style={{ width: `${anchoBarra(venta.total, maxVentas)}%` }}
+                      className="chart-vertical-fill"
+                      style={{ height: `${altoBarra(venta.total, maxVentas)}%` }}
                     >
-                      <span className="chart-value">${venta.total.toFixed(2)}</span>
+                      {venta.total > 0 && (
+                        <span className="chart-vertical-value">
+                          ${venta.total.toFixed(2)}
+                        </span>
+                      )}
                     </div>
                   </div>
+                  <span className="chart-vertical-label">
+                    {index % 2 === 0 ? venta.fecha.slice(5) : ""}
+                  </span>
                 </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
+          ) : (
+            <div className="chart-bars">
+              {ventas.length === 0 ? (
+                <p className="chart-empty">Sin datos</p>
+              ) : (
+                ventas.map((venta) => (
+                  <div className="chart-bar" key={venta.fecha}>
+                    <span className="chart-label">{venta.fecha}</span>
+                    <div className="chart-bar-body">
+                      <div
+                        className="chart-bar-fill"
+                        style={{ width: `${anchoBarra(venta.total, maxVentas)}%` }}
+                      >
+                        <span className="chart-value">${venta.total.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
