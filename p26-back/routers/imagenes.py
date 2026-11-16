@@ -12,9 +12,11 @@ from jwt_service import usuario_desde_header
 load_dotenv()
 router = APIRouter(prefix="/v1")
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_URL = (os.getenv("SUPABASE_URL") or "").rstrip("/")
+if SUPABASE_URL.endswith("/rest/v1"):
+    SUPABASE_URL = SUPABASE_URL[:-len("/rest/v1")]
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
-BUCKET = "imagenes-productos"
+BUCKET = os.getenv("SUPABASE_BUCKET") or "imagenes-productos"
 TAMANO_MAXIMO = 2 * 1024 * 1024
 
 EXTENSIONES = {
@@ -61,8 +63,6 @@ async def subir_imagen(
         raise HTTPException(status_code=400, detail="La imagen no puede pesar más de 2 MB")
 
     ruta = f"{uuid.uuid4().hex}.{EXTENSIONES[archivo.content_type]}"
-    status = await run_in_threadpool(subir_a_supabase, ruta, contenido, archivo.content_type)
-
     respuesta = await run_in_threadpool(subir_a_supabase, ruta, contenido, archivo.content_type)
 
     if respuesta.status_code >= 300:
