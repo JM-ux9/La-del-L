@@ -49,13 +49,14 @@ export default defineConfig({
         ],
       },
       generateSW: {
-        navigateFallback: '/404',
+        navigateFallback: null,
         globPatterns: ['**/*.{css,js,html,svg,png,jpg,jpeg,webp,ico,txt,woff2}'],
         globIgnores: [
           '**/pwa-*.png',
           '**/maskable-icon-*.png',
           '**/apple-touch-icon*.png',
         ],
+        ignoreURLParametersMatching: [/.*/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/uofaxfmbilrtjorblprt\.supabase\.co\/.*/i,
