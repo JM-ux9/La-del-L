@@ -65,7 +65,7 @@ class PedidoSubscriptions:
         usuario = requerir_usuario(info)
         pool = info.context["pool"]
         usuario_id = usuario["usuario_id"]
-        excluidos = {"CANCELADO", "RECHAZADO", "LISTO"}
+        excluidos = {"CANCELADO", "RECHAZADO"}
 
         async with eventos.suscribir(eventos.canal_usuario(usuario_id)) as cola:
             async with pool.acquire() as conn:
@@ -75,7 +75,7 @@ class PedidoSubscriptions:
                     "to_char(hora_entrega AT TIME ZONE 'America/Mexico_City', 'HH24:MI') AS hora_entrega, "
                     "total, status, usuario_id "
                     "FROM pedido "
-                    "WHERE usuario_id = $1 AND status NOT IN ('CANCELADO', 'RECHAZADO', 'LISTO') "
+                    "WHERE usuario_id = $1 AND status NOT IN ('CANCELADO', 'RECHAZADO') "
                     "ORDER BY id DESC",
                     usuario_id,
                 )

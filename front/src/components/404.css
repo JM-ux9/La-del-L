@@ -1,0 +1,122 @@
+.not-found-page {
+  display: grid;
+  flex: 1;
+  min-height: 65svh;
+  place-items: center;
+  padding: clamp(1.5rem, 5vw, 4rem) 1.25rem;
+}
+
+.not-found-card {
+  position: relative;
+  width: min(100%, 660px);
+  overflow: hidden;
+  padding: clamp(2rem, 6vw, 4rem);
+  border: 1px solid rgba(61, 35, 20, 0.1);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(174, 235, 98, 0.16), transparent 34%),
+    #fffdf8;
+  box-shadow: 0 24px 70px rgba(61, 35, 20, 0.12);
+  text-align: center;
+}
+
+.not-found-icon {
+  display: grid;
+  width: 76px;
+  height: 76px;
+  place-items: center;
+  margin: 0 auto 1.5rem;
+  border: 1px solid rgba(92, 91, 43, 0.16);
+  border-radius: 50%;
+  background: #f1f3df;
+  color: #5c5b2b;
+}
+
+.not-found-icon svg {
+  width: 42px;
+  height: 42px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.not-found-eyebrow {
+  margin: 0 0 0.65rem;
+  color: #5c5b2b;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.not-found-card h1 {
+  margin: 0;
+  background: linear-gradient(125deg, #5d7a3a 15%, #3d2314 85%);
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(5.5rem, 19vw, 9rem);
+  font-weight: 900;
+  letter-spacing: -0.09em;
+  line-height: 0.95;
+}
+
+.not-found-card h2 {
+  margin: 1.2rem 0 0;
+  color: #29231f;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  line-height: 1.2;
+}
+
+.not-found-message {
+  max-width: 420px;
+  margin: 0.9rem auto 1.75rem;
+  color: #6c625b;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.not-found-home {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.25rem;
+  border: 1px solid #3d2314;
+  border-radius: 999px;
+  background: #3d2314;
+  color: #fff8e7;
+  font: inherit;
+  font-weight: 750;
+  text-decoration: none;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.not-found-home:hover {
+  transform: translateY(-2px);
+  background: #5c5b2b;
+  border-color: #5c5b2b;
+}
+
+.not-found-home:focus-visible {
+  outline: 3px solid #81a055;
+  outline-offset: 4px;
+}
+
+.not-found-home span {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  .not-found-card {
+    border-radius: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-home {
+    transition: none;
+  }
+}

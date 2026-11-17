@@ -50,7 +50,7 @@ function MisPedidos() {
       await cargarPedidos();
       cancelar = suscribirMisPedidosActivos((pedido) => {
         setPedidos((prev) => {
-          const excluidos = new Set(["CANCELADO", "ENTREGADO", "RECHAZADO"]);
+          const excluidos = new Set(["CANCELADO", "RECHAZADO"]);
           if (excluidos.has(pedido.status)) {
             return prev.filter((p) => p.id !== pedido.id);
           }

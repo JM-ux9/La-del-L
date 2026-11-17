@@ -1,4 +1,5 @@
 ---
+import { pwaInfo } from "virtual:pwa-info";
 import "../styles/global.css";
 import TopBar from "../components/TopBar.astro";
 import Footer from "../components/Footer.jsx";
@@ -11,6 +12,9 @@ const { titulo = "Café del L", descripcion = "Cafetería del edificio L: café,
     <head>
         <meta charset="utf-8" />
         <link rel="icon" type="image/png" href="/java.png" />
+        <link rel="apple-touch-icon" href="/images/apple-touch-icon-180x180.png" />
+        <meta name="theme-color" content="#FFF8E7" />
+        {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
         <link rel="preconnect" href="https://uofaxfmbilrtjorblprt.supabase.co" crossorigin />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content={descripcion} />
@@ -71,5 +75,16 @@ const { titulo = "Café del L", descripcion = "Cafetería del edificio L: café,
         {!ocultarTopBar && <TopBar />}
         <slot />
         <Footer />
+
+        <script>
+            import { registerSW } from "virtual:pwa-register";
+
+            registerSW({
+                immediate: true,
+                onOfflineReady() {
+                    console.log("La app está lista para usarse sin conexión.");
+                },
+            });
+        </script>
     </body>
 </html>
