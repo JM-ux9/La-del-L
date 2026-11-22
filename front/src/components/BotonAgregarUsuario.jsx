@@ -80,27 +80,42 @@ function BotonAgregarUsuario() {
       </button>
       {mostrarModal && createPortal(
         <div className="modal-fondo" onClick={cerrar}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <p className="modal-titulo">Nuevo usuario</p>
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-            />
-            <input
-              type="email"
-              placeholder="Correo"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {error && <p>{error}</p>}
+          <div
+            className="modal modal-agregar-usuario"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-usuario-titulo"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="modal-titulo" id="modal-usuario-titulo">Nuevo usuario</h2>
+            <label className="modal-campo">
+              <span>Nombre</span>
+              <input
+                type="text"
+                placeholder="Tu nombre"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+            </label>
+            <label className="modal-campo">
+              <span>Correo electrónico</span>
+              <input
+                type="email"
+                placeholder="tu@correo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </label>
+            <label className="modal-campo">
+              <span>Contraseña</span>
+              <input
+                type="password"
+                placeholder="Mínimo 8 caracteres"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+            {error && <p className="modal-error" role="alert">{error}</p>}
             <div className="modal-acciones">
               <button onClick={cerrar}>Cancelar</button>
               <button className="modal-principal" onClick={guardar} disabled={cargando}>

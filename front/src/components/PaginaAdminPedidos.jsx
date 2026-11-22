@@ -153,7 +153,9 @@ function PaginaAdminPedidos() {
       return (
         <>
           <select
+            className="admin-selector-tiempo"
             value={minutos[pedido.id] || ""}
+            aria-label="Tiempo de preparación"
             onChange={(e) => setMinutos({ ...minutos, [pedido.id]: e.target.value })}
           >
             <option value="">15 min (por defecto)</option>

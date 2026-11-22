@@ -61,6 +61,13 @@
   font: inherit;
 }
 
+.producto-quantity input:focus-visible,
+.acciones input:focus-visible {
+  border-color: #607b40;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(96, 123, 64, 0.2);
+}
+
 .producto-submit {
   width: 100%;
   border: 0;

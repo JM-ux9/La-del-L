@@ -222,7 +222,7 @@ function PaginaAdminProductos() {
     <section className="admin-pagina">
       <h2>{editandoId === null ? "Nuevo producto" : `Editando producto #${editandoId}`}</h2>
 
-      <div className="admin-form">
+      <div className="admin-form admin-form-estilizado admin-form-producto">
         <label>
           Nombre
           <input value={form.nombre} onChange={(e) => cambiarCampo("nombre", e.target.value)} />
@@ -263,7 +263,7 @@ function PaginaAdminProductos() {
           </div>
           {form.imagen && <img src={form.imagen} alt="Vista previa" className="admin-preview" />}
         </label>
-        <label>
+        <label className="admin-disponible">
           Disponible
           <input
             type="checkbox"

@@ -223,7 +223,7 @@ function PaginaAdminUsuarios() {
         <section className="admin-pagina">
             <h2>{editandoId === null ? "Nuevo usuario" : `Editando usuario #${editandoId}`}</h2>
 
-            <div className="admin-form">
+            <div className="admin-form admin-form-estilizado">
                 <label>
                     Nombre
                     <input value={form.nombre} onChange={(e) => cambiarCampo("nombre", e.target.value)} />
