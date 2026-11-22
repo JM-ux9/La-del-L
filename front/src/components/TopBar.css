@@ -2,13 +2,47 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
   background: #3D2314;
   color: #FFF8E7;
-  padding: 1rem 2rem;
+  padding: 0.75rem 1rem;
   position: sticky;
   top: 0;
   z-index: 50;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.topbar-row {
+  display: contents;
+}
+
+.topbar h1 {
+  order: 1;
+}
+
+.topbar-carrito {
+  display: flex;
+  align-items: center;
+  order: 2;
+}
+
+.topbar-pedidos {
+  order: 3;
+}
+
+.topbar-busqueda {
+  order: 4;
+}
+
+.topbar-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+  order: 5;
 }
 
 .topbar-titulo {
@@ -20,19 +54,17 @@
   cursor: pointer;
 }
 
-.topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  min-width: 0;
-}
-
 .topbar h1 {
   margin: 0;
   font-size: 1.4rem;
   white-space: nowrap;
   transform-origin: left center;
   transition: transform 0.2s ease;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .topbar h1:hover {
@@ -47,12 +79,8 @@
   background: #f5f1e8;
   color: #29231f;
   font: inherit;
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  min-width: 0;
+  max-width: 200px;
 }
 
 .topbar-busqueda {
@@ -60,6 +88,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 0.4rem;
+  flex: 1 1 12rem;
+  min-width: 0;
 }
 
 .topbar-logo {
@@ -126,14 +156,6 @@ button:hover{
   transform: scale(1.1);
 }
 
-.topbar-left button {
-  transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-
-.topbar-left button:hover {
-  transform: scale(1.12);
-}
-
 .topbar-pedidos {
   display: inline-block;
   text-decoration: none;
@@ -150,7 +172,7 @@ button:hover{
 
 @media (prefers-reduced-motion: reduce) {
   .topbar h1,
-  .topbar-left button,
+  .topbar-acciones button,
   .topbar-pedidos {
     transition: none;
   }
@@ -238,27 +260,82 @@ button:hover{
 
 @media (max-width: 720px) {
   .topbar {
-    flex-wrap: wrap;
-    padding: 0.75rem 1rem;
-    gap: 0.75rem;
-  }
-
-  .topbar-left,
-  .topbar-right {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 0.6rem 1rem;
     gap: 0.6rem;
   }
 
-  .topbar-right {
+  .topbar-row {
+    display: flex;
+    align-items: center;
     width: 100%;
+    min-width: 0;
+    gap: 0.35rem;
+  }
+
+  .topbar-row-top {
+    justify-content: space-between;
+  }
+
+  .topbar h1,
+  .topbar-carrito,
+  .topbar-pedidos,
+  .topbar-busqueda,
+  .topbar-acciones {
+    order: 0;
+  }
+
+  .topbar-acciones {
+    gap: 0.25rem;
+  }
+
+  .topbar-row-bottom {
+    gap: 0.5rem;
+  }
+
+  .topbar h1 {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    font-size: 1.1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-acciones > astro-island {
+    flex: none;
+  }
+
+  .topbar-carrito button {
+    flex: none;
   }
 
   .topbar-busqueda {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
   }
 
   .topbar input {
     width: 100%;
     min-height: 44px;
+    max-width: none;
+  }
+
+  .topbar-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .topbar-perfil,
+  .topbar-dashboard,
+  .topbar-logout {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .topbar-pedidos {
+    flex: none;
+    padding: 0.5rem 0.65rem;
   }
 }

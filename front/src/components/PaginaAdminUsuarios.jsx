@@ -188,19 +188,19 @@ function PaginaAdminUsuarios() {
                 <table className="admin-tabla">
                     <thead>
                         <tr>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Rol</th>
-                            <th>Acciones</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Rol</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {usuarios.map((usuario) => (
                             <tr key={usuario.id}>
-                                <td>{usuario.nombre}</td>
-                                <td>{usuario.email}</td>
-                                <td>{usuario.rol}</td>
-                                <td>
+                            <td data-label="Nombre">{usuario.nombre}</td>
+                            <td data-label="Email">{usuario.email}</td>
+                            <td data-label="Rol">{usuario.rol}</td>
+                            <td data-label="Acciones">
                                     <div className="admin-acciones">
                                         <button onClick={() => editar(usuario)}>Editar</button>
                                         <button onClick={() => cambiarRol(usuario)}>

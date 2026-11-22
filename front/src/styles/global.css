@@ -15,6 +15,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  width: 100%;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   background: var(--aurora-bg);
   color: var(--aurora-text);
@@ -25,7 +27,7 @@ body {
   position: relative;
   min-height: 100svh;
   isolation: isolate;
-  overflow-x: clip;
+  overflow-x: auto;
 }
 
 .skeleton {

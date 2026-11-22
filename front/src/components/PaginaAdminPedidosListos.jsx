@@ -90,23 +90,23 @@ function PaginaAdminPedidosListos() {
         <table className="admin-tabla">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Fecha</th>
-              <th>Cliente</th>
-              <th>Total</th>
-              <th>Estado</th>
-              <th>Acciones</th>
+              <th scope="col">#</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Total</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {pedidos.map((pedido) => (
               <tr key={pedido.id}>
-                <td>{pedido.id}</td>
-                <td>{pedido.fecha}</td>
-                <td>{pedido.usuario ? pedido.usuario.nombre : "—"}</td>
-                <td>${Number(pedido.total).toFixed(2)}</td>
-                <td>{pedido.status}</td>
-                <td>
+                <td data-label="#">{pedido.id}</td>
+                <td data-label="Fecha">{pedido.fecha}</td>
+                <td data-label="Cliente">{pedido.usuario ? pedido.usuario.nombre : "—"}</td>
+                <td data-label="Total">${Number(pedido.total).toFixed(2)}</td>
+                <td data-label="Estado">{pedido.status}</td>
+                <td data-label="Acciones">
                   <button
                     type="button"
                     onClick={() => marcarEntregado(pedido)}

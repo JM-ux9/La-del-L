@@ -63,3 +63,33 @@
   margin: 0.25rem 0;
   font-weight: 700;
 }
+
+@media (max-width: 640px) {
+  .mis-pedidos {
+    padding: 1rem;
+  }
+
+  .pedido {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .pedido-encabezado {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pedido-status {
+    font-size: 0.875rem;
+  }
+
+  .pedido-detalles li {
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+  }
+
+  .pedido-total {
+    text-align: left;
+  }
+}

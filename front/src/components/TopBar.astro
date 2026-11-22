@@ -4,35 +4,30 @@ import BotonCerrarSesion from "./BotonCerrarSesion.jsx";
 import BotonDashboard from "./BotonDashboard.jsx";
 import BotonPerfil from "./BotonPerfil.jsx";
 import "./TopBar.css";
-import { Image } from 'astro:assets';
+import { Image } from "astro:assets";
 ---
 
 <header class="topbar">
-  <div class="topbar-left">
+  <div class="topbar-row topbar-row-top">
     <h1>
-      <a class="topbar-titulo" href="/">Café del </a><span class="aurora-text2"
-        >L</span
-      >
+      <a class="topbar-titulo" href="/">Café del </a><span class="aurora-text2">L</span>
     </h1>
-    <ContadorCarrito client:idle />
-    <a href="/mis-pedidos" class="topbar-pedidos">Mis pedidos</a>
+    <div class="topbar-acciones">
+      <BotonPerfil client:idle />
+      <BotonDashboard client:idle />
+      <BotonCerrarSesion client:idle />
+      <a href="/">
+        <Image src="/images/logo.jpeg" width={40} height={40} alt="Logo" class="topbar-logo" loading="eager" />
+      </a>
+    </div>
   </div>
-  <div class="topbar-right">
+  <div class="topbar-row topbar-row-bottom">
+    <div class="topbar-carrito">
+      <ContadorCarrito client:idle />
+    </div>
+    <a href="/mis-pedidos" class="topbar-pedidos">Mis pedidos</a>
     <div class="topbar-busqueda">
       <input type="text" placeholder="Buscar productos..." id="busqueda" />
     </div>
-    <BotonPerfil client:idle />
-    <BotonDashboard client:idle />
-    <BotonCerrarSesion client:idle />
-    <a href="/">
-      <Image
-        src="/images/logo.jpeg"
-        width="40"
-        height="40"
-        alt="Logo"
-        class="topbar-logo"
-        loading="eager"
-      />
-    </a>
   </div>
 </header>

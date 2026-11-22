@@ -49,4 +49,21 @@
   .sidebar {
     position: static;
   }
+
+  .sidebar ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .sidebar li a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 359px) {
+  .sidebar ul {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

@@ -133,6 +133,7 @@
   position: relative;
   width: min(520px, 100%);
   max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   overflow-y: auto;
   padding: clamp(1.5rem, 5vw, 2.5rem);
   border-radius: 8px;
@@ -187,6 +188,7 @@
   position: relative;
   width: min(520px, 100%);
   max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   overflow-y: auto;
   padding: clamp(1.5rem, 5vw, 2.5rem);
   border-radius: 8px;

@@ -215,23 +215,23 @@ function PaginaAdminPedidos() {
         <table className="admin-tabla">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Fecha</th>
-              <th>Cliente</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Acciones</th>
+              <th scope="col">#</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Total</th>
+              <th scope="col">Status</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {pedidos.map((pedido) => (
               <tr key={pedido.id}>
-                <td>{pedido.id}</td>
-                <td>{pedido.fecha}</td>
-                <td>{pedido.usuario ? pedido.usuario.nombre : "—"}</td>
-                <td>${Number(pedido.total).toFixed(2)}</td>
-                <td>{pedido.status}</td>
-                <td>
+                <td data-label="#">{pedido.id}</td>
+                <td data-label="Fecha">{pedido.fecha}</td>
+                <td data-label="Cliente">{pedido.usuario ? pedido.usuario.nombre : "—"}</td>
+                <td data-label="Total">${Number(pedido.total).toFixed(2)}</td>
+                <td data-label="Status">{pedido.status}</td>
+                <td data-label="Acciones">
                   <div className="admin-acciones">
                     <button onClick={() => verDetalle(pedido)}>Ver</button>
                     {botonesStatus(pedido)}
@@ -265,17 +265,17 @@ function PaginaAdminPedidos() {
               <table className="admin-tabla">
                 <thead>
                   <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Importe</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Importe</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pedidoAbierto.detalles.map((detalle) => (
                     <tr key={detalle.id}>
-                      <td>{detalle.producto ? detalle.producto.nombre : "—"}</td>
-                      <td>{detalle.cantidad}</td>
-                      <td>${Number(detalle.importe).toFixed(2)}</td>
+                      <td data-label="Producto">{detalle.producto ? detalle.producto.nombre : "—"}</td>
+                      <td data-label="Cantidad">{detalle.cantidad}</td>
+                      <td data-label="Importe">${Number(detalle.importe).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>

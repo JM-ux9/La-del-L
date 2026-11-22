@@ -186,23 +186,23 @@ function PaginaAdminProductos() {
         <table className="admin-tabla">
           <thead>
             <tr>
-              <th>Imagen</th>
-              <th>Nombre</th>
-              <th>Categoría</th>
-              <th>Precio</th>
-              <th>Disponible</th>
-              <th>Acciones</th>
+              <th scope="col">Imagen</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Categoría</th>
+              <th scope="col">Precio</th>
+              <th scope="col">Disponible</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {productos.map((producto) => (
               <tr key={producto.id}>
-                <td><img src={producto.imagen} alt={producto.nombre} /></td>
-                <td>{producto.nombre}</td>
-                <td>{producto.categoria?.nombre}</td>
-                <td>${Number(producto.precio).toFixed(2)}</td>
-                <td>{producto.disponible ? "Sí" : "No"}</td>
-                <td>
+                <td data-label="Imagen"><img src={producto.imagen} alt={producto.nombre} /></td>
+                <td data-label="Nombre">{producto.nombre}</td>
+                <td data-label="Categoría">{producto.categoria?.nombre}</td>
+                <td data-label="Precio">${Number(producto.precio).toFixed(2)}</td>
+                <td data-label="Disponible">{producto.disponible ? "Sí" : "No"}</td>
+                <td data-label="Acciones">
                   <div className="admin-acciones">
                     <button onClick={() => editar(producto)}>Editar</button>
                     <button className="admin-peligro" onClick={() => eliminar(producto)}>
