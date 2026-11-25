@@ -48,30 +48,15 @@ export default defineConfig({
           },
         ],
       },
-      generateSW: {
-        navigateFallback: null,
-        globPatterns: ['**/*.{css,js,html,svg,png,jpg,jpeg,webp,ico,txt,woff2}'],
-        globIgnores: [
-          '**/pwa-*.png',
-          '**/maskable-icon-*.png',
-          '**/apple-touch-icon*.png',
-        ],
-        ignoreURLParametersMatching: [/.*/],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/uofaxfmbilrtjorblprt\.supabase\.co\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'supabase-images-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30,
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
+      strategies: 'buildSW',
+      buildSW: {
+        swSrc: 'src/sw.js',
+        globPatterns: [
+          'index.html',
+          'offline.html',
+          '_astro/**/*.{js,css}',
+          'images/*.{png,ico}',
+          '*.{ico,svg,png}',
         ],
       },
     }),
