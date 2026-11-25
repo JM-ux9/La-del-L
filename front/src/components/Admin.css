@@ -14,6 +14,17 @@
   text-decoration: none;
   font-weight: 600;
   white-space: nowrap;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.admin-nav a:hover {
+  background: #5a3a27;
+  transform: translateY(-2px);
+}
+
+.admin-nav a:active {
+  transform: translateY(0);
+  background: #4d2e1e;
 }
 
 @media (max-width: 720px) {
