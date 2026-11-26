@@ -339,3 +339,33 @@ button:hover{
     padding: 0.5rem 0.65rem;
   }
 }
+
+@media (max-width: 420px) {
+  .topbar-row-bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .topbar-carrito {
+    min-width: 0;
+  }
+
+  .topbar-carrito astro-island,
+  .topbar-carrito button {
+    width: 100%;
+  }
+
+  .topbar-pedidos {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .topbar-busqueda {
+    grid-column: 1 / -1;
+  }
+
+  .topbar input {
+    box-sizing: border-box;
+  }
+}
