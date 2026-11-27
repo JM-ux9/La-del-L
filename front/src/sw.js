@@ -17,6 +17,7 @@ const CACHE_IMAGENES = "imagenes-supabase";
 const CACHES_ACTUALES = [CACHE_SHELL, CACHE_PAGINAS, CACHE_ASSETS, CACHE_IMAGENES];
 
 const OFFLINE_URL = "/offline.html";
+const PLANTILLA_PRODUCTO = "/producto-offline/";
 const SUPABASE = "https://uofaxfmbilrtjorblprt.supabase.co";
 const MAX_IMAGENES = 100;
 const TIEMPO_RED = 4000;
@@ -28,6 +29,8 @@ function urlDelShell(entrada) {
   }
   if (url === "/offline") {
     url = OFFLINE_URL;
+  } else if (url === "/producto-offline") {
+    url = PLANTILLA_PRODUCTO;
   }
   return url;
 }
@@ -86,22 +89,29 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   if (request.mode === "navigate") {
-    if (esCatalogo(url)) {
+    if (esFichaProducto(url)) {
+      event.respondWith(fichaProducto(request));
+    } else if (esCatalogo(url)) {
       event.respondWith(networkFirst(request));
     } else {
       event.respondWith(soloRed(request));
     }
+  } else if (url.origin === self.location.origin && url.pathname === "/productos.json") {
+    // Los datos de la plantilla: frescos si hay red, guardados si no
+    event.respondWith(networkFirst(request));
   } else if (esAsset(url)) {
     event.respondWith(cacheFirst(request, url));
   }
 });
 
+function esFichaProducto(url) {
+  return url.origin === self.location.origin && url.pathname.startsWith("/products/");
+}
+
 function esCatalogo(url) {
   return (
     url.origin === self.location.origin &&
-    (url.pathname === "/" ||
-      url.pathname.startsWith("/categorias/") ||
-      url.pathname.startsWith("/products/"))
+    (url.pathname === "/" || url.pathname.startsWith("/categorias/"))
   );
 }
 
@@ -143,13 +153,25 @@ async function networkFirst(request) {
     return respuesta;
   } catch (error) {
     const guardada =
-      (await cache.match(request, { ignoreSearch: true })) ||
-      (await caches.match(request, { ignoreSearch: true })) ||
+      (await cache.match(request, { ignoreSearch: true, ignoreVary: true })) ||
+      (await caches.match(request, { ignoreSearch: true, ignoreVary: true })) ||
       (await buscarConSinDiagonal(request));
     if (guardada) {
       return guardada;
     }
-    return caches.match(OFFLINE_URL);
+    return caches.match(OFFLINE_URL, { ignoreVary: true });
+  }
+}
+
+async function fichaProducto(request) {
+  try {
+    return await conTiempoLimite(fetch(request), TIEMPO_RED);
+  } catch (error) {
+    const plantilla = await caches.match(PLANTILLA_PRODUCTO, { ignoreVary: true });
+    if (plantilla) {
+      return plantilla;
+    }
+    return caches.match(OFFLINE_URL, { ignoreVary: true });
   }
 }
 
@@ -160,23 +182,23 @@ async function buscarConSinDiagonal(request) {
   } else {
     url.pathname = url.pathname + "/";
   }
-  return caches.match(url.href, { ignoreSearch: true });
+  return caches.match(url.href, { ignoreSearch: true, ignoreVary: true });
 }
 
 async function soloRed(request) {
   try {
     return await fetch(request);
   } catch (error) {
-    const guardada = await caches.match(request, { ignoreSearch: true });
+    const guardada = await caches.match(request, { ignoreSearch: true, ignoreVary: true });
     if (guardada) {
       return guardada;
     }
-    return caches.match(OFFLINE_URL);
+    return caches.match(OFFLINE_URL, { ignoreVary: true });
   }
 }
 
 async function cacheFirst(request, url) {
-  const guardada = await caches.match(request);
+  const guardada = await caches.match(request, { ignoreVary: true });
   if (guardada) {
     return guardada;
   }

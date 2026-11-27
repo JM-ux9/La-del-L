@@ -54,6 +54,8 @@ export default defineConfig({
         globPatterns: [
           'index.html',
           'offline.html',
+          'producto-offline/index.html',
+          'productos.json',
           '_astro/**/*.{js,css}',
           'images/*.{png,ico}',
           '*.{ico,svg,png}',

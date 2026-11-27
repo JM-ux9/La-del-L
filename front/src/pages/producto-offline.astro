@@ -1,0 +1,9 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import DetalleOffline from "../components/DetalleOffline.jsx";
+import "../templates/DetalleProducto.css";
+---
+
+<BaseLayout titulo="Producto | Café del L">
+  <DetalleOffline client:load />
+</BaseLayout>
